@@ -6,7 +6,7 @@ import "math"
 type Color [3]float64
 
 // NewColor constructs a new color.
-func NewColor(r float64, g float64, b float64) *Color {
+func NewColor(r, g, b float64) *Color {
 	return &Color{r, g, b}
 }
 

@@ -4,7 +4,7 @@ package tracer
 type Point [3]float64
 
 // NewPoint constructs a new point.
-func NewPoint(x float64, y float64, z float64) *Point {
+func NewPoint(x, y, z float64) *Point {
 	return &Point{x, y, z}
 }
 

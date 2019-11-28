@@ -6,7 +6,7 @@ import "math"
 type Vector [3]float64
 
 // NewVector constructs a new vector.
-func NewVector(x float64, y float64, z float64) *Vector {
+func NewVector(x, y, z float64) *Vector {
 	return &Vector{x, y, z}
 }
 

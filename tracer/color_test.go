@@ -154,7 +154,7 @@ func TestColor_RGBA(t *testing.T) {
 		wantB uint32
 		wantA uint32
 	}{
-		{"case1", NewColor(-0.5, 0.25, 1.0), 0, 63, 255, 255},
+		{"case1", NewColor(-0.5, 0.25, 1.0), 0, 16383, 65535, 65535},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {

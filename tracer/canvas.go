@@ -10,13 +10,12 @@ import (
 
 // Canvas represents a canvas.
 type Canvas struct {
-	colors [][]Color
-	width  int
-	height int
+	colors        [][]Color
+	width, height int
 }
 
 // NewCanvas constructs a new canvas.
-func NewCanvas(w int, h int) *Canvas {
+func NewCanvas(w, h int) *Canvas {
 	black := NewColor(0.0, 0.0, 0.0)
 	c := &Canvas{make([][]Color, w), w, h}
 	for i := 0; i < w; i++ {
@@ -38,12 +37,12 @@ func (c *Canvas) Height() int {
 	return c.height
 }
 
-func (c *Canvas) contains(x int, y int) bool {
+func (c *Canvas) contains(x, y int) bool {
 	return x >= 0 && x < c.Width() && y >= 0 && y < c.Height()
 }
 
 // GetColor returns the color of the pixel at (x, y).
-func (c *Canvas) GetColor(x int, y int) *Color {
+func (c *Canvas) GetColor(x, y int) *Color {
 	if !c.contains(x, y) {
 		return nil
 	}
@@ -51,7 +50,7 @@ func (c *Canvas) GetColor(x int, y int) *Color {
 }
 
 // SetColor sets the color of the pixel at (x, y) to a color.
-func (c *Canvas) SetColor(x int, y int, d *Color) {
+func (c *Canvas) SetColor(x, y int, d *Color) {
 	if !c.contains(x, y) {
 		return
 	}
