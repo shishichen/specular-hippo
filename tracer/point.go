@@ -33,7 +33,7 @@ func (p *Point) Equals(q *Point) bool {
 	return equals(p.X(), q.X()) && equals(p.Y(), q.Y()) && equals(p.Z(), q.Z())
 }
 
-// PlusVector returns a point representing this point plus another vector.
+// PlusVector returns a point representing this point plus a vector.
 func (p *Point) PlusVector(v *Vector) *Point {
 	return NewPoint(p.X()+v.X(), p.Y()+v.Y(), p.Z()+v.Z())
 }

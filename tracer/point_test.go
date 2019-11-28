@@ -1,7 +1,6 @@
 package tracer
 
 import (
-	"reflect"
 	"testing"
 )
 
@@ -14,27 +13,23 @@ func TestNewPoint(t *testing.T) {
 	tests := []struct {
 		name string
 		args args
-		want *Point
 	}{
-		{"case1", args{4.3, -4.2, 3.1}, &Point{4.3, -4.2, 3.1}},
+		{"case1", args{4.3, -4.2, 3.1}},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			got := NewPoint(tt.args.x, tt.args.y, tt.args.z)
-			if !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("NewPoint() = %v, want %v", got, tt.want)
-			}
 			if got.X() != tt.args.x {
-				t.Errorf("x() = %v, want %v", got.X(), tt.args.x)
+				t.Errorf("Point.X() = %v, want %v", got.X(), tt.args.x)
 			}
 			if got.Y() != tt.args.y {
-				t.Errorf("y() = %v, want %v", got.Y(), tt.args.y)
+				t.Errorf("Point.Y() = %v, want %v", got.Y(), tt.args.y)
 			}
 			if got.Z() != tt.args.z {
-				t.Errorf("z() = %v, want %v", got.Z(), tt.args.z)
+				t.Errorf("Point.Z() = %v, want %v", got.Z(), tt.args.z)
 			}
 			if got.W() != 1.0 {
-				t.Errorf("w() = %v, want %v", got.W(), 1.0)
+				t.Errorf("Point.W() = %v, want %v", got.W(), 1.0)
 			}
 		})
 	}
