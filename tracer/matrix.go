@@ -98,8 +98,8 @@ func NewMatrix4(a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p float64) *Matrix4
 	return &Matrix4{{a, b, c, d}, {e, f, g, h}, {i, j, k, l}, {m, n, o, p}}
 }
 
-// NewIdentity4 returns a 4x4 identity matrix.
-func NewIdentity4() *Matrix4 {
+// NewIdentity returns a 4x4 identity matrix.
+func NewIdentity() *Matrix4 {
 	return NewMatrix4(1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0)
 }
 
@@ -120,8 +120,7 @@ func (m *Matrix4) Equals(n *Matrix4) bool {
 	return true
 }
 
-// TimesMatrix returns this matrix multiplied by a matrix.
-func (m *Matrix4) TimesMatrix(n *Matrix4) *Matrix4 {
+func (m *Matrix4) timesMatrix(n *Matrix4) *Matrix4 {
 	r := Matrix4{}
 	for i := 0; i < 4; i++ {
 		for j := 0; j < 4; j++ {
@@ -133,13 +132,33 @@ func (m *Matrix4) TimesMatrix(n *Matrix4) *Matrix4 {
 	return &r
 }
 
+// Concatenate returns a matrix representing this matrix's transformation followed by another matrix's transformation.
+func (m *Matrix4) Concatenate(n *Matrix4) *Matrix4 {
+	return n.timesMatrix(m)
+}
+
+// TimesPoint returns a point representing this matrix multiplied by a point.
+func (m *Matrix4) TimesPoint(p *Point) *Point {
+	r := [4]float64{}
+	for i := 0; i < 4; i++ {
+		r[i] = m[i][0]*p.X() + m[i][1]*p.Y() + m[i][2]*p.Z() + m[i][3]*p.W()
+	}
+	if !equals(r[3], p.W()) {
+		return nil
+	}
+	return NewPoint(r[0], r[1], r[2])
+}
+
 // TimesVector returns a vector representing this matrix multiplied by a vector.
 func (m *Matrix4) TimesVector(v *Vector) *Vector {
-	r := Vector{}
-	for i := 0; i < 3; i++ {
-		r[i] = m[i][0]*v.X() + m[i][1]*v.Y() + m[i][2]*v.Z()
+	r := [4]float64{}
+	for i := 0; i < 4; i++ {
+		r[i] = m[i][0]*v.X() + m[i][1]*v.Y() + m[i][2]*v.Z() + m[i][3]*v.W()
 	}
-	return &r
+	if !equals(r[3], v.W()) {
+		return nil
+	}
+	return NewVector(r[0], r[1], r[2])
 }
 
 // Transpose returns the tranpose of this matrix.
@@ -203,4 +222,64 @@ func (m *Matrix4) Inverse() *Matrix4 {
 		}
 	}
 	return &r
+}
+
+// NewTranslation returns a 4x4 translation matrix.
+func NewTranslation(x, y, z float64) *Matrix4 {
+	r := NewIdentity()
+	r[0][3] = x
+	r[1][3] = y
+	r[2][3] = z
+	return r
+}
+
+// NewScaling returns a 4x4 scaling matrix.
+func NewScaling(x, y, z float64) *Matrix4 {
+	r := NewIdentity()
+	r[0][0] = x
+	r[1][1] = y
+	r[2][2] = z
+	return r
+}
+
+// NewRotationX returns a 4x4 rotation around the X axis matrix.
+func NewRotationX(x float64) *Matrix4 {
+	r := NewIdentity()
+	r[1][1] = math.Cos(x)
+	r[1][2] = -1.0 * math.Sin(x)
+	r[2][1] = math.Sin(x)
+	r[2][2] = math.Cos(x)
+	return r
+}
+
+// NewRotationY returns a 4x4 rotation around the Y axis matrix.
+func NewRotationY(x float64) *Matrix4 {
+	r := NewIdentity()
+	r[0][0] = math.Cos(x)
+	r[0][2] = math.Sin(x)
+	r[2][0] = -1.0 * math.Sin(x)
+	r[2][2] = math.Cos(x)
+	return r
+}
+
+// NewRotationZ returns a 4x4 rotation around the Z axis matrix.
+func NewRotationZ(x float64) *Matrix4 {
+	r := NewIdentity()
+	r[0][0] = math.Cos(x)
+	r[0][1] = -1.0 * math.Sin(x)
+	r[1][0] = math.Sin(x)
+	r[1][1] = math.Cos(x)
+	return r
+}
+
+// NewShearing returns a 4x4 shearing matrix.
+func NewShearing(xy, xz, yx, yz, zx, zy float64) *Matrix4 {
+	r := NewIdentity()
+	r[0][1] = xy
+	r[0][2] = xz
+	r[1][0] = yx
+	r[1][2] = yz
+	r[2][0] = zx
+	r[2][1] = zy
+	return r
 }
