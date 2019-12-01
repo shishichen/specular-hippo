@@ -161,6 +161,11 @@ func (m *Matrix4) TimesVector(v *Vector) *Vector {
 	return NewVector(r[0], r[1], r[2])
 }
 
+// TimesRay returns a ray representing this matrix multiplied by a ray.
+func (m *Matrix4) TimesRay(r *Ray) *Ray {
+	return NewRay(m.TimesPoint(r.Origin()), m.TimesVector(r.Direction()))
+}
+
 // Transpose returns the tranpose of this matrix.
 func (m *Matrix4) Transpose() *Matrix4 {
 	r := Matrix4{}

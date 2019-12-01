@@ -29,7 +29,7 @@ func TestNewPoint(t *testing.T) {
 				t.Errorf("Point.Z() = %v, want %v", got.Z(), tt.args.z)
 			}
 			if got.W() != 1.0 {
-				t.Errorf("Point.W() = %v, want %v", got.W(), 1.0)
+				t.Errorf("Point.W() = %v, want 1.0", got.W())
 			}
 		})
 	}

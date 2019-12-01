@@ -21,17 +21,17 @@ func TestNewMatrix2(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			got := NewMatrix2(tt.args.a, tt.args.b, tt.args.c, tt.args.d)
-			if value := got.At(0, 0); !equals(value, -3.0) {
-				t.Errorf("value at (0, 0) is not -3.0: %v", value)
+			if value := got.At(0, 0); !equals(value, tt.args.a) {
+				t.Errorf("value at (0, 0) = %v, want %v", value, tt.args.a)
 			}
-			if value := got.At(0, 1); !equals(value, 5.0) {
-				t.Errorf("value at (0, 1) is not 5.0: %v", value)
+			if value := got.At(0, 1); !equals(value, tt.args.b) {
+				t.Errorf("value at (0, 1) = %v, want %v", value, tt.args.b)
 			}
-			if value := got.At(1, 0); !equals(value, 1.0) {
-				t.Errorf("value at (1, 0) is not 1.0: %v", value)
+			if value := got.At(1, 0); !equals(value, tt.args.c) {
+				t.Errorf("value at (1, 0) = %v, want %v", value, tt.args.c)
 			}
-			if value := got.At(1, 1); !equals(value, -2.0) {
-				t.Errorf("value at (1, 1) is not -2.0: %v", value)
+			if value := got.At(1, 1); !equals(value, tt.args.d) {
+				t.Errorf("value at (1, 1) = %v, want %v", value, tt.args.d)
 			}
 		})
 	}
@@ -98,14 +98,14 @@ func TestNewMatrix3(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			got := NewMatrix3(tt.args.a, tt.args.b, tt.args.c, tt.args.d, tt.args.e,
 				tt.args.f, tt.args.g, tt.args.h, tt.args.i)
-			if value := got.At(0, 0); !equals(value, -3.0) {
-				t.Errorf("value at (0, 0) is not -3.0: %v", value)
+			if value := got.At(0, 0); !equals(value, tt.args.a) {
+				t.Errorf("value at (0, 0) = %v, want %v", value, tt.args.a)
 			}
-			if value := got.At(1, 1); !equals(value, -2.0) {
-				t.Errorf("value at (1, 1) is not -2.0: %v", value)
+			if value := got.At(1, 1); !equals(value, tt.args.e) {
+				t.Errorf("value at (1, 1) = %v, want %v", value, tt.args.e)
 			}
-			if value := got.At(2, 2); !equals(value, 1.0) {
-				t.Errorf("value at (2, 2) is not 1.0: %v", value)
+			if value := got.At(2, 2); !equals(value, tt.args.i) {
+				t.Errorf("value at (2, 2) = %v, want %v", value, tt.args.i)
 			}
 		})
 	}
@@ -230,26 +230,26 @@ func TestNewMatrix4(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			got := NewMatrix4(tt.args.a, tt.args.b, tt.args.c, tt.args.d, tt.args.e, tt.args.f, tt.args.g, tt.args.h,
 				tt.args.i, tt.args.j, tt.args.k, tt.args.l, tt.args.m, tt.args.n, tt.args.o, tt.args.p)
-			if value := got.At(0, 0); !equals(value, 1.0) {
-				t.Errorf("value at (0, 0) is not 1.0: %v", value)
+			if value := got.At(0, 0); !equals(value, tt.args.a) {
+				t.Errorf("value at (0, 0) = %v, want %v", value, tt.args.a)
 			}
-			if value := got.At(0, 3); !equals(value, 4.0) {
-				t.Errorf("value at (0, 3) is not 4.0: %v", value)
+			if value := got.At(0, 3); !equals(value, tt.args.d) {
+				t.Errorf("value at (0, 3) = %v, want %v", value, tt.args.d)
 			}
-			if value := got.At(1, 0); !equals(value, 5.5) {
-				t.Errorf("value at (1, 0) is not 5.5: %v", value)
+			if value := got.At(1, 0); !equals(value, tt.args.e) {
+				t.Errorf("value at (1, 0) = %v, want %v", value, tt.args.e)
 			}
-			if value := got.At(1, 2); !equals(value, 7.5) {
-				t.Errorf("value at (1, 2) is not 7.5: %v", value)
+			if value := got.At(1, 2); !equals(value, tt.args.g) {
+				t.Errorf("value at (1, 2) = %v, want %v", value, tt.args.g)
 			}
-			if value := got.At(2, 2); !equals(value, 11.0) {
-				t.Errorf("value at (2, 2) is not 11.0: %v", value)
+			if value := got.At(2, 2); !equals(value, tt.args.k) {
+				t.Errorf("value at (2, 2) = %v, want %v", value, tt.args.k)
 			}
-			if value := got.At(3, 0); !equals(value, 13.5) {
-				t.Errorf("value at (3, 0) is not 13.5: %v", value)
+			if value := got.At(3, 0); !equals(value, tt.args.m) {
+				t.Errorf("value at (3, 0) = %v, want %v", value, tt.args.m)
 			}
-			if value := got.At(3, 2); !equals(value, 15.5) {
-				t.Errorf("value at (3, 2) is not 15.5: %v", value)
+			if value := got.At(3, 2); !equals(value, tt.args.o) {
+				t.Errorf("value at (3, 2) = %v, want %v", value, tt.args.o)
 			}
 		})
 	}
@@ -346,6 +346,30 @@ func TestMatrix4_TimesVector(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			if got := tt.m.TimesVector(tt.args.v); !got.Equals(tt.want) {
 				t.Errorf("Matrix4.TimesVector() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
+func TestMatrix4_TimesRay(t *testing.T) {
+	type args struct {
+		r *Ray
+	}
+	tests := []struct {
+		name string
+		m    *Matrix4
+		args args
+		want *Ray
+	}{
+		{"case1", NewTranslation(3.0, 4.0, 5.0), args{NewRay(NewPoint(1.0, 2.0, 3.0), NewVector(0.0, 1.0, 0.0))},
+			NewRay(NewPoint(4.0, 6.0, 8.0), NewVector(0.0, 1.0, 0.0))},
+		{"case2", NewScaling(2.0, 3.0, 4.0), args{NewRay(NewPoint(1.0, 2.0, 3.0), NewVector(0.0, 1.0, 0.0))},
+			NewRay(NewPoint(2.0, 6.0, 12.0), NewVector(0.0, 3.0, 0.0))},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := tt.m.TimesRay(tt.args.r); !got.Equals(tt.want) {
+				t.Errorf("Matrix4.TimesRay() = %v, want %v", got, tt.want)
 			}
 		})
 	}

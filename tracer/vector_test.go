@@ -29,7 +29,7 @@ func TestNewVector(t *testing.T) {
 				t.Errorf("Vector.Z() = %v, want %v", got.Z(), tt.args.z)
 			}
 			if got.W() != 0.0 {
-				t.Errorf("Vector.W() = %v, want %v", got.W(), 0.0)
+				t.Errorf("Vector.W() = %v, want 0.0", got.W())
 			}
 		})
 	}

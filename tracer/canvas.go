@@ -41,8 +41,8 @@ func (c *Canvas) contains(x, y int) bool {
 	return x >= 0 && x < c.Width() && y >= 0 && y < c.Height()
 }
 
-// GetColor returns the color of the pixel at (x, y).
-func (c *Canvas) GetColor(x, y int) *Color {
+// ColorAt returns the color of the pixel at (x, y).
+func (c *Canvas) ColorAt(x, y int) *Color {
 	if !c.contains(x, y) {
 		return nil
 	}
@@ -62,7 +62,7 @@ func (c *Canvas) ToFile() {
 	img := image.NewRGBA(image.Rectangle{image.Point{}, image.Point{c.Width(), c.Height()}})
 	for i := 0; i < c.Width(); i++ {
 		for j := 0; j < c.Height(); j++ {
-			img.Set(i, j, c.GetColor(i, j))
+			img.Set(i, j, c.ColorAt(i, j))
 		}
 	}
 

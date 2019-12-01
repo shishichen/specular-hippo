@@ -27,8 +27,8 @@ func TestNewCanvas(t *testing.T) {
 			black := NewColor(0.0, 0.0, 0.0)
 			for i := 0; i < got.Width(); i++ {
 				for j := 0; j < got.Height(); j++ {
-					if color := got.GetColor(i, j); !color.Equals(black) {
-						t.Errorf("color at (%v, %v) is not [0.0, 0.0, 0.0]: %v", i, j, color)
+					if color := got.ColorAt(i, j); !color.Equals(black) {
+						t.Errorf("color at (%v, %v) = %v, want [0.0, 0.0, 0.0]", i, j, color)
 					}
 				}
 			}
@@ -52,8 +52,8 @@ func TestCanvas_SetColor(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			tt.c.SetColor(tt.args.x, tt.args.y, tt.args.d)
-			if got := tt.c.GetColor(tt.args.x, tt.args.y); !got.Equals(tt.args.d) {
-				t.Errorf("color at (%v, %v) is not %v: %v", tt.args.x, tt.args.y, tt.args.d, got)
+			if got := tt.c.ColorAt(tt.args.x, tt.args.y); !got.Equals(tt.args.d) {
+				t.Errorf("color at (%v, %v) = %v, want %v", tt.args.x, tt.args.y, got, tt.args.d)
 			}
 		})
 	}
