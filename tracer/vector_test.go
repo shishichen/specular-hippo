@@ -1,6 +1,7 @@
 package tracer
 
 import (
+	"math"
 	"testing"
 )
 
@@ -243,6 +244,28 @@ func TestVector_CrossVector(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			if got := tt.v.CrossVector(tt.args.w); !got.Equals(tt.want) {
 				t.Errorf("Vector.CrossVector() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
+func TestVector_Reflect(t *testing.T) {
+	type args struct {
+		w *Vector
+	}
+	tests := []struct {
+		name string
+		v    *Vector
+		args args
+		want *Vector
+	}{
+		{"case1", NewVector(0.0, 1.0, 0.0), args{NewVector(1.0, -1.0, 0.0)}, NewVector(1.0, 1.0, 0.0)},
+		{"case2", NewVector(math.Sqrt(2.0)/2.0, math.Sqrt(2.0)/2.0, 0.0), args{NewVector(0.0, -1.0, 0.0)}, NewVector(1.0, 0.0, 0.0)},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := tt.v.Reflect(tt.args.w); !got.Equals(tt.want) {
+				t.Errorf("Vector.Reflect() = %v, want %v", got, tt.want)
 			}
 		})
 	}

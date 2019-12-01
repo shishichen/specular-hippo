@@ -43,21 +43,29 @@ func drawClock() *tracer.Canvas {
 
 func drawSphere() *tracer.Canvas {
 	c := tracer.NewCanvas(400, 400)
-
 	worldToCanvas := tracer.NewScaling(100, 100, 100).Concatenate(tracer.NewTranslation(200, 200, 0))
-	o := worldToCanvas.TimesPoint(tracer.NewPoint(0, 0, 10))
-	s := tracer.NewSphere()
-	if !s.SetTransform(tracer.NewTranslation(0, 0, 3).Concatenate(worldToCanvas)) {
-		fmt.Printf("Error: unable to set sphere transform to: %v\n", s.Transform())
+
+	origin := worldToCanvas.TimesPoint(tracer.NewPoint(0, 0, 0))
+	sphere := tracer.NewSphere()
+	if !sphere.SetTransform(tracer.NewTranslation(0, 0, 7).Concatenate(worldToCanvas)) {
+		fmt.Printf("Error: unable to set sphere transform to: %v\n", sphere.Transform())
 		return c
 	}
+	sphere.SetMaterial(tracer.NewMaterial(tracer.NewColor(0.2, 1, 1), 0.1, 0.9, 0.9, 200))
+	light := tracer.NewLight(worldToCanvas.TimesPoint(tracer.NewPoint(-10, 10, 0)), tracer.NewColor(1, 1, 1))
 	for i := 0; i < c.Width(); i++ {
 		for j := 0; j < c.Height(); j++ {
-			p := tracer.NewPoint(float64(i), float64(c.Height()-j-1), 0)
-			r := tracer.NewRay(o, p.MinusPoint(o).Normalize())
-			if len(s.Intersects(r)) > 0 {
-				c.SetColor(i, j, red)
+			pixel := tracer.NewPoint(float64(i), float64(c.Height()-j-1), 1000)
+			ray := tracer.NewRay(origin, pixel.MinusPoint(origin).Normalize())
+			hit := sphere.Intersects(ray).Hit()
+			if hit == nil {
+				continue
 			}
+			point := ray.Position(hit.T())
+			normal := hit.Sphere().NormalAt(point)
+			eye := ray.Direction().TimesScalar(-1)
+			color := light.Illuminate(point, sphere.Material(), normal, eye)
+			c.SetColor(i, j, color)
 		}
 	}
 

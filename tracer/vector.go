@@ -79,3 +79,8 @@ func (v *Vector) DotVector(w *Vector) float64 {
 func (v *Vector) CrossVector(w *Vector) *Vector {
 	return NewVector(v.Y()*w.Z()-v.Z()*w.Y(), v.Z()*w.X()-v.X()*w.Z(), v.X()*w.Y()-v.Y()*w.X())
 }
+
+// Reflect computes the reflection of a vector around this normal vector.
+func (v *Vector) Reflect(w *Vector) *Vector {
+	return w.MinusVector(v.TimesScalar(2.0).TimesScalar(w.DotVector(v)))
+}

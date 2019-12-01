@@ -16,6 +16,9 @@ type Canvas struct {
 
 // NewCanvas constructs a new canvas.
 func NewCanvas(w, h int) *Canvas {
+	if w <= 0 || h <= 0 {
+		return nil
+	}
 	black := NewColor(0.0, 0.0, 0.0)
 	c := &Canvas{make([][]Color, w), w, h}
 	for i := 0; i < w; i++ {
@@ -42,6 +45,7 @@ func (c *Canvas) contains(x, y int) bool {
 }
 
 // ColorAt returns the color of the pixel at (x, y).
+// May return nil.
 func (c *Canvas) ColorAt(x, y int) *Color {
 	if !c.contains(x, y) {
 		return nil

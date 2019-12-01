@@ -143,9 +143,7 @@ func (m *Matrix4) TimesPoint(p *Point) *Point {
 	for i := 0; i < 4; i++ {
 		r[i] = m[i][0]*p.X() + m[i][1]*p.Y() + m[i][2]*p.Z() + m[i][3]*p.W()
 	}
-	if !equals(r[3], p.W()) {
-		return nil
-	}
+	// hack: ignore whatever we might compute for W
 	return NewPoint(r[0], r[1], r[2])
 }
 
@@ -155,9 +153,7 @@ func (m *Matrix4) TimesVector(v *Vector) *Vector {
 	for i := 0; i < 4; i++ {
 		r[i] = m[i][0]*v.X() + m[i][1]*v.Y() + m[i][2]*v.Z() + m[i][3]*v.W()
 	}
-	if !equals(r[3], v.W()) {
-		return nil
-	}
+	// hack: ignore whatever we might compute for W
 	return NewVector(r[0], r[1], r[2])
 }
 
@@ -215,6 +211,7 @@ func (m *Matrix4) HasInverse() bool {
 }
 
 // Inverse returns the inverse of this matrix.
+// May return nil.
 func (m *Matrix4) Inverse() *Matrix4 {
 	if !m.HasInverse() {
 		return nil

@@ -56,6 +56,7 @@ func (i Intersections) Equals(j Intersections) bool {
 }
 
 // Hit returns the hit intersection from a collection of intersections.
+// May return nil.
 func (i Intersections) Hit() *Intersection {
 	for _, x := range i {
 		if x.T() >= 0.0 {
