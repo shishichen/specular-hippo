@@ -62,7 +62,7 @@ func TestLight_Illuminate(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if got := tt.l.Illuminate(tt.args.p, tt.args.m, tt.args.normal, tt.args.eye); !got.Equals(tt.want) {
+			if got := tt.l.Illuminate(tt.args.m, tt.args.p, tt.args.normal, tt.args.eye); !got.Equals(tt.want) {
 				t.Errorf("Light.Illuminate() = %v, want %v", got, tt.want)
 			}
 		})

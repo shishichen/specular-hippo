@@ -24,7 +24,6 @@ func TestNewCanvas(t *testing.T) {
 			if got.Height() != tt.args.h {
 				t.Errorf("Canvas.Height() = %v, want %v", got.Height(), tt.args.h)
 			}
-			black := NewColor(0.0, 0.0, 0.0)
 			for i := 0; i < got.Width(); i++ {
 				for j := 0; j < got.Height(); j++ {
 					if color := got.ColorAt(i, j); !color.Equals(black) {

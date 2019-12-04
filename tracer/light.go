@@ -8,6 +8,9 @@ type Light struct {
 	i *Color
 }
 
+// Lights represents a collection of lights.
+type Lights []*Light
+
 // NewLight constructs a new light.
 func NewLight(p *Point, i *Color) *Light {
 	return &Light{p, i}
@@ -24,7 +27,7 @@ func (l *Light) Intensity() *Color {
 }
 
 // Illuminate returns the color of a point given a material, normal, and eye vector.
-func (l *Light) Illuminate(p *Point, m *Material, normal *Vector, eye *Vector) *Color {
+func (l *Light) Illuminate(m *Material, p *Point, normal *Vector, eye *Vector) *Color {
 	color := m.Color().TimesColor(l.Intensity())
 	ambient := color.TimesScalar(m.Ambient())
 	light := l.Position().MinusPoint(p).Normalize()

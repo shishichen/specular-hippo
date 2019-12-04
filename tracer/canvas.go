@@ -19,7 +19,6 @@ func NewCanvas(w, h int) *Canvas {
 	if w <= 0 || h <= 0 {
 		return nil
 	}
-	black := NewColor(0.0, 0.0, 0.0)
 	c := &Canvas{make([][]Color, w), w, h}
 	for i := 0; i < w; i++ {
 		c.colors[i] = make([]Color, h)

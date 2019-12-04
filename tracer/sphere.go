@@ -23,34 +23,36 @@ func (s *Sphere) Material() *Material {
 	return s.m
 }
 
-// SetTransform sets this sphere's transform to a matrix.
-func (s *Sphere) SetTransform(t *Matrix4) bool {
+// WithTransform sets this sphere's transform to a matrix.
+// May return nil without setting the transform if the transform is invalid.
+func (s *Sphere) WithTransform(t *Matrix4) *Sphere {
 	if !t.HasInverse() {
-		return false
+		return nil
 	}
 	s.transform = t
-	return true
+	return s
 }
 
-// SetMaterial sets this sphere's material to a material.
-func (s *Sphere) SetMaterial(m *Material) {
+// WithMaterial sets this sphere's material to a material.
+func (s *Sphere) WithMaterial(m *Material) *Sphere {
 	s.m = m
+	return s
 }
 
-// Intersects returns intersection points with a ray.
-func (s *Sphere) Intersects(r *Ray) Intersections {
-	r = s.Transform().Inverse().TimesRay(r)
-	sphereToRay := r.Origin().MinusPoint(NewPoint(0.0, 0.0, 0.0))
-	a := r.Direction().DotVector(r.Direction())
-	b := 2.0 * r.Direction().DotVector(sphereToRay)
+// Intersect returns this sphere's intersection points with a ray.
+func (s *Sphere) Intersect(r *Ray) Intersections {
+	rObject := s.Transform().Inverse().TimesRay(r)
+	sphereToRay := rObject.Origin().MinusPoint(NewPoint(0.0, 0.0, 0.0))
+	a := rObject.Direction().DotVector(rObject.Direction())
+	b := 2.0 * rObject.Direction().DotVector(sphereToRay)
 	c := sphereToRay.DotVector(sphereToRay) - 1.0
 	discriminant := b*b - 4*a*c
 	if discriminant < 0 {
-		return NewIntersections([]*Intersection{})
+		return NewIntersections()
 	}
 	t1 := (-1.0*b - math.Sqrt(discriminant)) / (2.0 * a)
 	t2 := (-1.0*b + math.Sqrt(discriminant)) / (2.0 * a)
-	return NewIntersections([]*Intersection{NewIntersection(t1, s), NewIntersection(t2, s)})
+	return NewIntersections(NewIntersection(r, t1, s), NewIntersection(r, t2, s))
 }
 
 // NormalAt returns the normal at a point on this sphere.

@@ -279,7 +279,7 @@ func TestMatrix4_Equals(t *testing.T) {
 	}
 }
 
-func TestMatrix4_timesMatrix(t *testing.T) {
+func TestMatrix4_TimesMatrix(t *testing.T) {
 	type args struct {
 		n *Matrix4
 	}
@@ -298,8 +298,8 @@ func TestMatrix4_timesMatrix(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if got := tt.m.timesMatrix(tt.args.n); !got.Equals(tt.want) {
-				t.Errorf("Matrix4.timesMatrix() = %v, want %v", got, tt.want)
+			if got := tt.m.TimesMatrix(tt.args.n); !got.Equals(tt.want) {
+				t.Errorf("Matrix4.TimesMatrix() = %v, want %v", got, tt.want)
 			}
 		})
 	}
@@ -361,9 +361,9 @@ func TestMatrix4_TimesRay(t *testing.T) {
 		args args
 		want *Ray
 	}{
-		{"case1", NewTranslation(3.0, 4.0, 5.0), args{NewRay(NewPoint(1.0, 2.0, 3.0), NewVector(0.0, 1.0, 0.0))},
+		{"case1", NewTranslate(3.0, 4.0, 5.0), args{NewRay(NewPoint(1.0, 2.0, 3.0), NewVector(0.0, 1.0, 0.0))},
 			NewRay(NewPoint(4.0, 6.0, 8.0), NewVector(0.0, 1.0, 0.0))},
-		{"case2", NewScaling(2.0, 3.0, 4.0), args{NewRay(NewPoint(1.0, 2.0, 3.0), NewVector(0.0, 1.0, 0.0))},
+		{"case2", NewScale(2.0, 3.0, 4.0), args{NewRay(NewPoint(1.0, 2.0, 3.0), NewVector(0.0, 1.0, 0.0))},
 			NewRay(NewPoint(2.0, 6.0, 12.0), NewVector(0.0, 3.0, 0.0))},
 	}
 	for _, tt := range tests {
@@ -512,7 +512,8 @@ func TestMatrix4_Inverse(t *testing.T) {
 		})
 	}
 }
-func TestMatrix4_TimesInverse(t *testing.T) {
+
+func TestMatrix4_ProductTimesInverse(t *testing.T) {
 	tests := []struct {
 		name string
 		m    *Matrix4
@@ -523,14 +524,14 @@ func TestMatrix4_TimesInverse(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if got := tt.m.timesMatrix(tt.n).timesMatrix(tt.n.Inverse()); !got.Equals(tt.m) {
-				t.Errorf("Matrix4.TimesInverse() = %v, original %v", got, tt.m)
+			if got := tt.m.TimesMatrix(tt.n).TimesMatrix(tt.n.Inverse()); !got.Equals(tt.m) {
+				t.Errorf("ProductTimesInverse = %v, original %v", got, tt.m)
 			}
 		})
 	}
 }
 
-func TestMatrix4_PointTranslation(t *testing.T) {
+func TestMatrix4_TranslatePoint(t *testing.T) {
 	type args struct {
 		t *Matrix4
 	}
@@ -540,19 +541,20 @@ func TestMatrix4_PointTranslation(t *testing.T) {
 		args args
 		want *Point
 	}{
-		{"case1", NewPoint(-3.0, 4.0, 5.0), args{NewTranslation(5.0, -3.0, 2.0)}, NewPoint(2.0, 1.0, 7.0)},
-		{"case2", NewPoint(-3.0, 4.0, 5.0), args{NewTranslation(5.0, -3.0, 2.0).Inverse()}, NewPoint(-8.0, 7.0, 3.0)},
+		{"case1", NewPoint(-3.0, 4.0, 5.0), args{NewTranslate(5.0, -3.0, 2.0)}, NewPoint(2.0, 1.0, 7.0)},
+		{"case2", NewPoint(-3.0, 4.0, 5.0), args{NewTranslate(5.0, -3.0, 2.0).Inverse()}, NewPoint(-8.0, 7.0, 3.0)},
+		{"case3", NewPoint(-3.0, 4.0, 5.0), args{NewIdentity().Translate(5.0, -3.0, 2.0)}, NewPoint(2.0, 1.0, 7.0)},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			if got := tt.args.t.TimesPoint(tt.p); !got.Equals(tt.want) {
-				t.Errorf("PointTranslation() = %v, want %v", got, tt.want)
+				t.Errorf("TranslatePoint = %v, want %v", got, tt.want)
 			}
 		})
 	}
 }
 
-func TestMatrix4_VectorTranslation(t *testing.T) {
+func TestMatrix4_TranslateVector(t *testing.T) {
 	type args struct {
 		t *Matrix4
 	}
@@ -562,18 +564,19 @@ func TestMatrix4_VectorTranslation(t *testing.T) {
 		args args
 		want *Vector
 	}{
-		{"case1", NewVector(-3.0, 4.0, 5.0), args{NewTranslation(5.0, -3.0, 2.0)}, NewVector(-3.0, 4.0, 5.0)},
+		{"case1", NewVector(-3.0, 4.0, 5.0), args{NewTranslate(5.0, -3.0, 2.0)}, NewVector(-3.0, 4.0, 5.0)},
+		{"case2", NewVector(-3.0, 4.0, 5.0), args{NewIdentity().Translate(5.0, -3.0, 2.0)}, NewVector(-3.0, 4.0, 5.0)},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			if got := tt.args.t.TimesVector(tt.v); !got.Equals(tt.want) {
-				t.Errorf("VectorTranslation() = %v, want %v", got, tt.want)
+				t.Errorf("TranslateVector = %v, want %v", got, tt.want)
 			}
 		})
 	}
 }
 
-func TestMatrix4_PointScaling(t *testing.T) {
+func TestMatrix4_ScalePoint(t *testing.T) {
 	type args struct {
 		t *Matrix4
 	}
@@ -583,20 +586,21 @@ func TestMatrix4_PointScaling(t *testing.T) {
 		args args
 		want *Point
 	}{
-		{"case1", NewPoint(-4.0, 6.0, 8.0), args{NewScaling(2.0, 3.0, 4.0)}, NewPoint(-8.0, 18.0, 32.0)},
-		{"case2", NewPoint(-4.0, 6.0, 8.0), args{NewScaling(2.0, 3.0, 4.0).Inverse()}, NewPoint(-2.0, 2.0, 2.0)},
-		{"case3", NewPoint(2.0, 3.0, 4.0), args{NewScaling(-1.0, 1.0, 1.0)}, NewPoint(-2.0, 3.0, 4.0)},
+		{"case1", NewPoint(-4.0, 6.0, 8.0), args{NewScale(2.0, 3.0, 4.0)}, NewPoint(-8.0, 18.0, 32.0)},
+		{"case2", NewPoint(-4.0, 6.0, 8.0), args{NewScale(2.0, 3.0, 4.0).Inverse()}, NewPoint(-2.0, 2.0, 2.0)},
+		{"case3", NewPoint(2.0, 3.0, 4.0), args{NewScale(-1.0, 1.0, 1.0)}, NewPoint(-2.0, 3.0, 4.0)},
+		{"case4", NewPoint(-4.0, 6.0, 8.0), args{NewIdentity().Scale(2.0, 3.0, 4.0)}, NewPoint(-8.0, 18.0, 32.0)},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			if got := tt.args.t.TimesPoint(tt.p); !got.Equals(tt.want) {
-				t.Errorf("PointScaling() = %v, want %v", got, tt.want)
+				t.Errorf("ScalePoint = %v, want %v", got, tt.want)
 			}
 		})
 	}
 }
 
-func TestMatrix4_VectorScaling(t *testing.T) {
+func TestMatrix4_ScaleVector(t *testing.T) {
 	type args struct {
 		t *Matrix4
 	}
@@ -606,18 +610,19 @@ func TestMatrix4_VectorScaling(t *testing.T) {
 		args args
 		want *Vector
 	}{
-		{"case1", NewVector(-4.0, 6.0, 8.0), args{NewScaling(2.0, 3.0, 4.0)}, NewVector(-8.0, 18.0, 32.0)},
+		{"case1", NewVector(-4.0, 6.0, 8.0), args{NewScale(2.0, 3.0, 4.0)}, NewVector(-8.0, 18.0, 32.0)},
+		{"case2", NewVector(-4.0, 6.0, 8.0), args{NewIdentity().Scale(2.0, 3.0, 4.0)}, NewVector(-8.0, 18.0, 32.0)},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			if got := tt.args.t.TimesVector(tt.v); !got.Equals(tt.want) {
-				t.Errorf("VectorScaling() = %v, want %v", got, tt.want)
+				t.Errorf("ScaleVector = %v, want %v", got, tt.want)
 			}
 		})
 	}
 }
 
-func TestMatrix4_PointRotation(t *testing.T) {
+func TestMatrix4_RotatePoint(t *testing.T) {
 	type args struct {
 		t *Matrix4
 	}
@@ -627,31 +632,37 @@ func TestMatrix4_PointRotation(t *testing.T) {
 		args args
 		want *Point
 	}{
-		{"case1", NewPoint(0.0, 1.0, 0.0), args{NewRotationX(math.Pi / 4.0)},
+		{"case1", NewPoint(0.0, 1.0, 0.0), args{NewRotateX(math.Pi / 4.0)},
 			NewPoint(0.0, math.Sqrt(2)/2.0, math.Sqrt(2)/2.0)},
-		{"case2", NewPoint(0.0, 1.0, 0.0), args{NewRotationX(math.Pi / 2.0)},
+		{"case2", NewPoint(0.0, 1.0, 0.0), args{NewRotateX(math.Pi / 2.0)},
 			NewPoint(0.0, 0.0, 1.0)},
-		{"case3", NewPoint(0.0, 1.0, 0.0), args{NewRotationX(math.Pi / 4.0).Inverse()},
+		{"case3", NewPoint(0.0, 1.0, 0.0), args{NewRotateX(math.Pi / 4.0).Inverse()},
 			NewPoint(0.0, math.Sqrt(2)/2.0, math.Sqrt(2)/-2.0)},
-		{"case4", NewPoint(0.0, 0.0, 1.0), args{NewRotationY(math.Pi / 4.0)},
+		{"case4", NewPoint(0.0, 0.0, 1.0), args{NewRotateY(math.Pi / 4.0)},
 			NewPoint(math.Sqrt(2)/2.0, 0.0, math.Sqrt(2)/2.0)},
-		{"case5", NewPoint(0.0, 0.0, 1.0), args{NewRotationY(math.Pi / 2.0)},
+		{"case5", NewPoint(0.0, 0.0, 1.0), args{NewRotateY(math.Pi / 2.0)},
 			NewPoint(1.0, 0.0, 0.0)},
-		{"case6", NewPoint(0.0, 1.0, 0.0), args{NewRotationZ(math.Pi / 4.0)},
+		{"case6", NewPoint(0.0, 1.0, 0.0), args{NewRotateZ(math.Pi / 4.0)},
 			NewPoint(math.Sqrt(2)/-2.0, math.Sqrt(2)/2.0, 0.0)},
-		{"case7", NewPoint(0.0, 1.0, 0.0), args{NewRotationZ(math.Pi / 2.0)},
+		{"case7", NewPoint(0.0, 1.0, 0.0), args{NewRotateZ(math.Pi / 2.0)},
 			NewPoint(-1.0, 0.0, 0.0)},
+		{"case8", NewPoint(0.0, 1.0, 0.0), args{NewIdentity().RotateX(math.Pi / 4.0)},
+			NewPoint(0.0, math.Sqrt(2)/2.0, math.Sqrt(2)/2.0)},
+		{"case9", NewPoint(0.0, 0.0, 1.0), args{NewIdentity().RotateY(math.Pi / 4.0)},
+			NewPoint(math.Sqrt(2)/2.0, 0.0, math.Sqrt(2)/2.0)},
+		{"case10", NewPoint(0.0, 1.0, 0.0), args{NewIdentity().RotateZ(math.Pi / 4.0)},
+			NewPoint(math.Sqrt(2)/-2.0, math.Sqrt(2)/2.0, 0.0)},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			if got := tt.args.t.TimesPoint(tt.p); !got.Equals(tt.want) {
-				t.Errorf("PointRotation() = %v, want %v", got, tt.want)
+				t.Errorf("Rotate = %v, want %v", got, tt.want)
 			}
 		})
 	}
 }
 
-func TestMatrix4_PointShearing(t *testing.T) {
+func TestMatrix4_ShearPoint(t *testing.T) {
 	type args struct {
 		t *Matrix4
 	}
@@ -661,32 +672,37 @@ func TestMatrix4_PointShearing(t *testing.T) {
 		args args
 		want *Point
 	}{
-		{"case1", NewPoint(2.0, 3.0, 4.0), args{NewShearing(1.0, 0.0, 0.0, 0.0, 0.0, 0.0)}, NewPoint(5.0, 3.0, 4.0)},
-		{"case2", NewPoint(2.0, 3.0, 4.0), args{NewShearing(0.0, 1.0, 0.0, 0.0, 0.0, 0.0)}, NewPoint(6.0, 3.0, 4.0)},
-		{"case3", NewPoint(2.0, 3.0, 4.0), args{NewShearing(0.0, 0.0, 1.0, 0.0, 0.0, 0.0)}, NewPoint(2.0, 5.0, 4.0)},
-		{"case4", NewPoint(2.0, 3.0, 4.0), args{NewShearing(0.0, 0.0, 0.0, 1.0, 0.0, 0.0)}, NewPoint(2.0, 7.0, 4.0)},
-		{"case5", NewPoint(2.0, 3.0, 4.0), args{NewShearing(0.0, 0.0, 0.0, 0.0, 1.0, 0.0)}, NewPoint(2.0, 3.0, 6.0)},
-		{"case6", NewPoint(2.0, 3.0, 4.0), args{NewShearing(0.0, 0.0, 0.0, 0.0, 0.0, 1.0)}, NewPoint(2.0, 3.0, 7.0)},
+		{"case1", NewPoint(2.0, 3.0, 4.0), args{NewShear(1.0, 0.0, 0.0, 0.0, 0.0, 0.0)}, NewPoint(5.0, 3.0, 4.0)},
+		{"case2", NewPoint(2.0, 3.0, 4.0), args{NewShear(0.0, 1.0, 0.0, 0.0, 0.0, 0.0)}, NewPoint(6.0, 3.0, 4.0)},
+		{"case3", NewPoint(2.0, 3.0, 4.0), args{NewShear(0.0, 0.0, 1.0, 0.0, 0.0, 0.0)}, NewPoint(2.0, 5.0, 4.0)},
+		{"case4", NewPoint(2.0, 3.0, 4.0), args{NewShear(0.0, 0.0, 0.0, 1.0, 0.0, 0.0)}, NewPoint(2.0, 7.0, 4.0)},
+		{"case5", NewPoint(2.0, 3.0, 4.0), args{NewShear(0.0, 0.0, 0.0, 0.0, 1.0, 0.0)}, NewPoint(2.0, 3.0, 6.0)},
+		{"case6", NewPoint(2.0, 3.0, 4.0), args{NewShear(0.0, 0.0, 0.0, 0.0, 0.0, 1.0)}, NewPoint(2.0, 3.0, 7.0)},
+		{"case7", NewPoint(2.0, 3.0, 4.0), args{NewIdentity().Shear(1.0, 0.0, 0.0, 0.0, 0.0, 0.0)}, NewPoint(5.0, 3.0, 4.0)},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			if got := tt.args.t.TimesPoint(tt.p); !got.Equals(tt.want) {
-				t.Errorf("PointShearing() = %v, want %v", got, tt.want)
+				t.Errorf("Shear = %v, want %v", got, tt.want)
 			}
 		})
 	}
 }
 
-func TestMatrix4_PointSequence(t *testing.T) {
+func TestMatrix4_OperationSequence(t *testing.T) {
 	type args struct {
-		a *Matrix4
-		b *Matrix4
-		c *Matrix4
+		rotateX    float64
+		scaleX     float64
+		scaleY     float64
+		scaleZ     float64
+		translateX float64
+		translateY float64
+		translateZ float64
 	}
 	type results struct {
-		a *Point
-		b *Point
-		c *Point
+		rotated    *Point
+		scaled     *Point
+		translated *Point
 	}
 	tests := []struct {
 		name string
@@ -694,27 +710,27 @@ func TestMatrix4_PointSequence(t *testing.T) {
 		args args
 		want results
 	}{
-		{"case1", NewPoint(1.0, 0.0, 1.0),
-			args{NewRotationX(math.Pi / 2.0), NewScaling(5.0, 5.0, 5.0), NewTranslation(10.0, 5.0, 7.0)},
+		{"case1", NewPoint(1.0, 0.0, 1.0), args{math.Pi / 2.0, 5.0, 5.0, 5.0, 10.0, 5.0, 7.0},
 			results{NewPoint(1.0, -1.0, 0.0), NewPoint(5.0, -5.0, 0.0), NewPoint(15.0, 0.0, 7.0)}},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got := tt.args.a.TimesPoint(tt.p)
-			if !got.Equals(tt.want.a) {
-				t.Errorf("PointSequence() = %v, want %v", got, tt.want.a)
+			got := NewRotateX(tt.args.rotateX).TimesPoint(tt.p)
+			if !got.Equals(tt.want.rotated) {
+				t.Errorf("Rotate = %v, want %v", got, tt.want.rotated)
 			}
-			got = tt.args.b.TimesPoint(got)
-			if !got.Equals(tt.want.b) {
-				t.Errorf("PointSequence() = %v, want %v", got, tt.want.b)
+			got = NewScale(tt.args.scaleX, tt.args.scaleY, tt.args.scaleZ).TimesPoint(got)
+			if !got.Equals(tt.want.scaled) {
+				t.Errorf("Scale = %v, want %v", got, tt.want.scaled)
 			}
-			got = tt.args.c.TimesPoint(got)
-			if !got.Equals(tt.want.c) {
-				t.Errorf("PointSequence() = %v, want %v", got, tt.want.c)
+			got = NewTranslate(tt.args.translateX, tt.args.translateY, tt.args.translateZ).TimesPoint(got)
+			if !got.Equals(tt.want.translated) {
+				t.Errorf("Translate = %v, want %v", got, tt.want.translated)
 			}
-			combined := tt.args.a.Concatenate(tt.args.b).Concatenate(tt.args.c)
-			if got := combined.TimesPoint(tt.p); !got.Equals(tt.want.c) {
-				t.Errorf("PointSequence() = %v, want %v", got, tt.want.c)
+			sequence := NewIdentity().RotateX(tt.args.rotateX).Scale(tt.args.scaleX, tt.args.scaleY, tt.args.scaleZ).
+				Translate(tt.args.translateX, tt.args.translateY, tt.args.translateZ)
+			if got := sequence.TimesPoint(tt.p); !got.Equals(tt.want.translated) {
+				t.Errorf("OperationSequence = %v, want %v", got, tt.want.translated)
 			}
 		})
 	}

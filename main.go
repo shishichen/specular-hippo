@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"math"
 
 	"github.com/shishichen/specular-hippo/projectile"
@@ -30,8 +29,8 @@ func drawClock() *tracer.Canvas {
 	c := tracer.NewCanvas(400, 400)
 
 	p := tracer.NewPoint(0, 1, 0)
-	t := tracer.NewScaling(150, 150, 150).Concatenate(tracer.NewTranslation(200, 200, 0))
-	r := tracer.NewRotationZ(math.Pi / -6)
+	t := tracer.NewScale(150, 150, 150).Translate(200, 200, 0)
+	r := tracer.NewRotateZ(math.Pi / -6)
 	for i := 0; i < 12; i++ {
 		q := t.TimesPoint(p)
 		c.SetColor(int(q.X()), int(q.Y()), white)
@@ -42,37 +41,47 @@ func drawClock() *tracer.Canvas {
 }
 
 func drawSphere() *tracer.Canvas {
-	c := tracer.NewCanvas(400, 400)
-	worldToCanvas := tracer.NewScaling(100, 100, 100).Concatenate(tracer.NewTranslation(200, 200, 0))
+	world := tracer.NewWorld(
+		tracer.Shapes{
+			tracer.NewSphere().WithTransform(tracer.NewScale(4.0, 4.0, 4.0).Translate(0, 0, -7)).
+				WithMaterial(tracer.NewMaterial(tracer.NewColor(0.2, 1, 1), 0.1, 0.9, 0.9, 200))},
+		tracer.Lights{tracer.NewLight(tracer.NewPoint(10, 10, 10), tracer.NewColor(1, 1, 1))})
+	camera := tracer.NewCamera(400, 400, math.Pi/2).
+		WithTransformFromParameters(tracer.NewPoint(0, 0, 0), tracer.NewPoint(0, 0, -1), tracer.NewVector(0, 1, 0))
+	return camera.Render(world)
+}
 
-	origin := worldToCanvas.TimesPoint(tracer.NewPoint(0, 0, 0))
-	sphere := tracer.NewSphere()
-	if !sphere.SetTransform(tracer.NewTranslation(0, 0, 7).Concatenate(worldToCanvas)) {
-		fmt.Printf("Error: unable to set sphere transform to: %v\n", sphere.Transform())
-		return c
-	}
-	sphere.SetMaterial(tracer.NewMaterial(tracer.NewColor(0.2, 1, 1), 0.1, 0.9, 0.9, 200))
-	light := tracer.NewLight(worldToCanvas.TimesPoint(tracer.NewPoint(-10, 10, 0)), tracer.NewColor(1, 1, 1))
-	for i := 0; i < c.Width(); i++ {
-		for j := 0; j < c.Height(); j++ {
-			pixel := tracer.NewPoint(float64(i), float64(c.Height()-j-1), 1000)
-			ray := tracer.NewRay(origin, pixel.MinusPoint(origin).Normalize())
-			hit := sphere.Intersects(ray).Hit()
-			if hit == nil {
-				continue
-			}
-			point := ray.Position(hit.T())
-			normal := hit.Sphere().NormalAt(point)
-			eye := ray.Direction().TimesScalar(-1)
-			color := light.Illuminate(point, sphere.Material(), normal, eye)
-			c.SetColor(i, j, color)
-		}
-	}
-
-	return c
+func drawSixSpheres() *tracer.Canvas {
+	world := tracer.NewWorld(
+		tracer.Shapes{
+			tracer.NewSphere().
+				WithTransform(tracer.NewScale(10, 0.01, 10)).
+				WithMaterial(tracer.NewMaterial(tracer.NewColor(1, 0.9, 0.9), 0.2, 0.9, 0, 200)),
+			tracer.NewSphere().
+				WithTransform(tracer.NewScale(10, 0.01, 10).RotateX(math.Pi/2).RotateY(math.Pi/-4).Translate(0, 0, 5)).
+				WithMaterial(tracer.NewMaterial(tracer.NewColor(1, 0.9, 0.9), 0.2, 0.9, 0, 200)),
+			tracer.NewSphere().
+				WithTransform(tracer.NewScale(10, 0.01, 10).RotateX(math.Pi/2).RotateY(math.Pi/4).Translate(0, 0, 5)).
+				WithMaterial(tracer.NewMaterial(tracer.NewColor(1, 0.9, 0.9), 0.2, 0.9, 0, 200)),
+			tracer.NewSphere().
+				WithTransform(tracer.NewTranslate(-0.5, 1, 0.5)).
+				WithMaterial(tracer.NewMaterial(tracer.NewColor(0.1, 1, 0.5), 0.2, 0.7, 0.3, 200)),
+			tracer.NewSphere().
+				WithTransform(tracer.NewScale(0.5, 0.5, 0.5).Translate(1.5, 0.5, -0.5)).
+				WithMaterial(tracer.NewMaterial(tracer.NewColor(0.5, 1, 0.1), 0.2, 0.7, 0.3, 200)),
+			tracer.NewSphere().
+				WithTransform(tracer.NewScale(0.33, 0.33, 0.33).Translate(-1.5, 0.33, -0.75)).
+				WithMaterial(tracer.NewMaterial(tracer.NewColor(1, 0.8, 0.1), 0.2, 0.7, 0.3, 200)),
+		},
+		tracer.Lights{
+			tracer.NewLight(tracer.NewPoint(-10, 10, -10), tracer.NewColor(1, 1, 1)),
+		})
+	camera := tracer.NewCamera(1000, 500, math.Pi/3).
+		WithTransformFromParameters(tracer.NewPoint(0, 1.5, -5), tracer.NewPoint(0, 1, 0), tracer.NewVector(0, 1, 0))
+	return camera.Render(world)
 }
 
 func main() {
-	c := drawSphere()
+	c := drawSixSpheres()
 	c.ToFile()
 }

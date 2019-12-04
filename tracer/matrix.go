@@ -120,7 +120,8 @@ func (m *Matrix4) Equals(n *Matrix4) bool {
 	return true
 }
 
-func (m *Matrix4) timesMatrix(n *Matrix4) *Matrix4 {
+// TimesMatrix returns a matrix representing this matrix multiplied by a matrix.
+func (m *Matrix4) TimesMatrix(n *Matrix4) *Matrix4 {
 	r := Matrix4{}
 	for i := 0; i < 4; i++ {
 		for j := 0; j < 4; j++ {
@@ -130,11 +131,6 @@ func (m *Matrix4) timesMatrix(n *Matrix4) *Matrix4 {
 		}
 	}
 	return &r
-}
-
-// Concatenate returns a matrix representing this matrix's transformation followed by another matrix's transformation.
-func (m *Matrix4) Concatenate(n *Matrix4) *Matrix4 {
-	return n.timesMatrix(m)
 }
 
 // TimesPoint returns a point representing this matrix multiplied by a point.
@@ -226,8 +222,8 @@ func (m *Matrix4) Inverse() *Matrix4 {
 	return &r
 }
 
-// NewTranslation returns a 4x4 translation matrix.
-func NewTranslation(x, y, z float64) *Matrix4 {
+// NewTranslate returns a matrix representing a translation operation.
+func NewTranslate(x, y, z float64) *Matrix4 {
 	r := NewIdentity()
 	r[0][3] = x
 	r[1][3] = y
@@ -235,8 +231,13 @@ func NewTranslation(x, y, z float64) *Matrix4 {
 	return r
 }
 
-// NewScaling returns a 4x4 scaling matrix.
-func NewScaling(x, y, z float64) *Matrix4 {
+// Translate returns a matrix representing this matrix followed by a translation operation.
+func (m *Matrix4) Translate(x, y, z float64) *Matrix4 {
+	return NewTranslate(x, y, z).TimesMatrix(m)
+}
+
+// NewScale returns a matrix representing a scaling operation.
+func NewScale(x, y, z float64) *Matrix4 {
 	r := NewIdentity()
 	r[0][0] = x
 	r[1][1] = y
@@ -244,8 +245,13 @@ func NewScaling(x, y, z float64) *Matrix4 {
 	return r
 }
 
-// NewRotationX returns a 4x4 rotation around the X axis matrix.
-func NewRotationX(x float64) *Matrix4 {
+// Scale returns a matrix representing this matrix followed by a scaling operation.
+func (m *Matrix4) Scale(x, y, z float64) *Matrix4 {
+	return NewScale(x, y, z).TimesMatrix(m)
+}
+
+// NewRotateX returns a matrix representing a rotation around the X axis.
+func NewRotateX(x float64) *Matrix4 {
 	r := NewIdentity()
 	r[1][1] = math.Cos(x)
 	r[1][2] = -1.0 * math.Sin(x)
@@ -254,8 +260,13 @@ func NewRotationX(x float64) *Matrix4 {
 	return r
 }
 
-// NewRotationY returns a 4x4 rotation around the Y axis matrix.
-func NewRotationY(x float64) *Matrix4 {
+// RotateX returns a matrix representing this matrix followed by a rotation around the X axis.
+func (m *Matrix4) RotateX(x float64) *Matrix4 {
+	return NewRotateX(x).TimesMatrix(m)
+}
+
+// NewRotateY returns a matrix representing a rotation around the Y axis.
+func NewRotateY(x float64) *Matrix4 {
 	r := NewIdentity()
 	r[0][0] = math.Cos(x)
 	r[0][2] = math.Sin(x)
@@ -264,8 +275,13 @@ func NewRotationY(x float64) *Matrix4 {
 	return r
 }
 
-// NewRotationZ returns a 4x4 rotation around the Z axis matrix.
-func NewRotationZ(x float64) *Matrix4 {
+// RotateY returns a matrix representing this matrix followed by a rotation around the Y axis.
+func (m *Matrix4) RotateY(x float64) *Matrix4 {
+	return NewRotateY(x).TimesMatrix(m)
+}
+
+// NewRotateZ returns a matrix representing a rotation around the Z axis.
+func NewRotateZ(x float64) *Matrix4 {
 	r := NewIdentity()
 	r[0][0] = math.Cos(x)
 	r[0][1] = -1.0 * math.Sin(x)
@@ -274,8 +290,13 @@ func NewRotationZ(x float64) *Matrix4 {
 	return r
 }
 
-// NewShearing returns a 4x4 shearing matrix.
-func NewShearing(xy, xz, yx, yz, zx, zy float64) *Matrix4 {
+// RotateZ returns a matrix representing this matrix followed by a rotation around the Z axis.
+func (m *Matrix4) RotateZ(x float64) *Matrix4 {
+	return NewRotateZ(x).TimesMatrix(m)
+}
+
+// NewShear returns a matrix representing a shearing operation.
+func NewShear(xy, xz, yx, yz, zx, zy float64) *Matrix4 {
 	r := NewIdentity()
 	r[0][1] = xy
 	r[0][2] = xz
@@ -284,4 +305,9 @@ func NewShearing(xy, xz, yx, yz, zx, zy float64) *Matrix4 {
 	r[2][0] = zx
 	r[2][1] = zy
 	return r
+}
+
+// Shear returns a matrix representing this matrix followed by a shearing operation.
+func (m *Matrix4) Shear(xy, xz, yx, yz, zx, zy float64) *Matrix4 {
+	return NewShear(xy, xz, yx, yz, zx, zy).TimesMatrix(m)
 }
