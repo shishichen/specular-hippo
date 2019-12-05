@@ -4,18 +4,23 @@ import "math"
 
 // Sphere represents a sphere.
 type Sphere struct {
-	transform *Matrix4
-	m         *Material
+	t        *Matrix4
+	inverseT *Matrix4
+	m        *Material
 }
 
 // NewSphere constructs a new sphere.
 func NewSphere() *Sphere {
-	return &Sphere{NewIdentity(), NewDefaultMaterial()}
+	return &Sphere{NewIdentity(), NewIdentity(), NewDefaultMaterial()}
 }
 
 // Transform returns this sphere's transform.
 func (s *Sphere) Transform() *Matrix4 {
-	return s.transform
+	return s.t
+}
+
+func (s *Sphere) inverseTransform() *Matrix4 {
+	return s.inverseT
 }
 
 // Material returns this sphere's material.
@@ -29,7 +34,8 @@ func (s *Sphere) WithTransform(t *Matrix4) *Sphere {
 	if !t.HasInverse() {
 		return nil
 	}
-	s.transform = t
+	s.t = t
+	s.inverseT = t.Inverse()
 	return s
 }
 
@@ -41,7 +47,7 @@ func (s *Sphere) WithMaterial(m *Material) *Sphere {
 
 // Intersect returns this sphere's intersection points with a ray.
 func (s *Sphere) Intersect(r *Ray) Intersections {
-	rObject := s.Transform().Inverse().TimesRay(r)
+	rObject := s.inverseTransform().TimesRay(r)
 	sphereToRay := rObject.Origin().MinusPoint(NewPoint(0.0, 0.0, 0.0))
 	a := rObject.Direction().DotVector(rObject.Direction())
 	b := 2.0 * rObject.Direction().DotVector(sphereToRay)
@@ -57,8 +63,8 @@ func (s *Sphere) Intersect(r *Ray) Intersections {
 
 // NormalAt returns the normal at a point on this sphere.
 func (s *Sphere) NormalAt(p *Point) *Vector {
-	objectPoint := s.Transform().Inverse().TimesPoint(p)
+	objectPoint := s.inverseTransform().TimesPoint(p)
 	objectNormal := objectPoint.MinusPoint(NewPoint(0.0, 0.0, 0.0))
-	worldNormal := s.Transform().Inverse().Transpose().TimesVector(objectNormal)
+	worldNormal := s.inverseTransform().Transpose().TimesVector(objectNormal)
 	return worldNormal.Normalize()
 }

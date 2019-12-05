@@ -158,3 +158,35 @@ func TestCamera_Render(t *testing.T) {
 		})
 	}
 }
+
+func BenchmarkRender(b *testing.B) {
+	for n := 0; n < b.N; n++ {
+		world := NewWorld(
+			Shapes{
+				NewSphere().
+					WithTransform(NewScale(10, 0.01, 10)).
+					WithMaterial(NewMaterial(NewColor(1, 0.9, 0.9), 0.2, 0.9, 0, 200)),
+				NewSphere().
+					WithTransform(NewScale(10, 0.01, 10).RotateX(math.Pi/2).RotateY(math.Pi/-4).Translate(0, 0, 5)).
+					WithMaterial(NewMaterial(NewColor(1, 0.9, 0.9), 0.2, 0.9, 0, 200)),
+				NewSphere().
+					WithTransform(NewScale(10, 0.01, 10).RotateX(math.Pi/2).RotateY(math.Pi/4).Translate(0, 0, 5)).
+					WithMaterial(NewMaterial(NewColor(1, 0.9, 0.9), 0.2, 0.9, 0, 200)),
+				NewSphere().
+					WithTransform(NewTranslate(-0.5, 1, 0.5)).
+					WithMaterial(NewMaterial(NewColor(0.1, 1, 0.5), 0.2, 0.7, 0.3, 200)),
+				NewSphere().
+					WithTransform(NewScale(0.5, 0.5, 0.5).Translate(1.5, 0.5, -0.5)).
+					WithMaterial(NewMaterial(NewColor(0.5, 1, 0.1), 0.2, 0.7, 0.3, 200)),
+				NewSphere().
+					WithTransform(NewScale(0.33, 0.33, 0.33).Translate(-1.5, 0.33, -0.75)).
+					WithMaterial(NewMaterial(NewColor(1, 0.8, 0.1), 0.2, 0.7, 0.3, 200)),
+			},
+			Lights{
+				NewLight(NewPoint(-10, 10, -10), NewColor(1, 1, 1)),
+			})
+		camera := NewCamera(1000, 500, math.Pi/3).
+			WithTransformFromParameters(NewPoint(0, 1.5, -5), NewPoint(0, 1, 0), NewVector(0, 1, 0))
+		camera.Render(world)
+	}
+}

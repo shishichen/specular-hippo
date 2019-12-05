@@ -31,11 +31,7 @@ func (w *World) Lights() Lights {
 
 // Intersect returns this world's intersection points with a ray.
 func (w *World) Intersect(r *Ray) Intersections {
-	i := NewIntersections()
-	for _, s := range w.Shapes() {
-		i = i.Merge(s.Intersect(r))
-	}
-	return i
+	return w.Shapes().Intersect(r)
 }
 
 // ColorAt returns the color of a ray's intersection with this world.
@@ -47,7 +43,7 @@ func (w *World) ColorAt(r *Ray) *Color {
 	}
 	hit.ComputeMetadata()
 	for _, l := range w.Lights() {
-		c = c.PlusColor(l.Illuminate(hit.Shape().Material(), hit.Point(), hit.Normal(), hit.Eye()))
+		c = c.PlusColor(l.Illuminate(hit.Shape().Material(), hit.ShiftedPoint(), hit.Normal(), hit.Eye(), w.Shapes()))
 	}
 	return c
 }

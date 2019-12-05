@@ -78,7 +78,7 @@ func drawSixSpheres() *tracer.Canvas {
 		})
 	camera := tracer.NewCamera(1000, 500, math.Pi/3).
 		WithTransformFromParameters(tracer.NewPoint(0, 1.5, -5), tracer.NewPoint(0, 1, 0), tracer.NewVector(0, 1, 0))
-	return camera.Render(world)
+	return camera.WithThreads(2).Render(world)
 }
 
 func main() {

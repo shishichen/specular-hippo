@@ -109,6 +109,31 @@ func TestIntersection_ComputeMetadata(t *testing.T) {
 	}
 }
 
+func TestIntersection_ShiftedPoint(t *testing.T) {
+	type want struct {
+		negative bool
+		dz       float64
+	}
+	tests := []struct {
+		name string
+		i    *Intersection
+		want want
+	}{
+		{"case1", NewIntersection(NewRay(NewPoint(0.0, 0.0, -5.0), NewVector(0.0, 0.0, 1.0)), 5.0,
+			NewSphere().WithTransform(NewTranslate(0.0, 0.0, 1.0))), want{true, epsilon / 2.0}},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			tt.i.ComputeMetadata()
+			if tt.i.ShiftedPoint() == nil ||
+				(tt.want.negative && tt.i.ShiftedPoint().Z() >= tt.i.Point().Z()-tt.want.dz) ||
+				(!tt.want.negative && tt.i.ShiftedPoint().Z() <= tt.i.Point().Z()+tt.want.dz) {
+				t.Errorf("shifted point = %v, want difference from %v of %v", tt.i.ShiftedPoint().Z(), tt.i.Point().Z(), tt.want.dz)
+			}
+		})
+	}
+}
+
 func TestNewIntersections(t *testing.T) {
 	var (
 		r = NewRay(NewPoint(0.0, 0.0, 0.0), NewVector(0.0, 0.0, 1.0))
@@ -172,32 +197,6 @@ func TestIntersections_Equals(t *testing.T) {
 	}
 }
 
-func TestIntersections_Merge(t *testing.T) {
-	var (
-		r = NewRay(NewPoint(0.0, 0.0, 0.0), NewVector(0.0, 0.0, 1.0))
-		s = NewSphere()
-	)
-	type args struct {
-		j Intersections
-	}
-	tests := []struct {
-		name string
-		i    Intersections
-		args args
-		want Intersections
-	}{
-		{"case1", NewIntersections(NewIntersection(r, 3.0, s)), args{NewIntersections(NewIntersection(r, 1.0, s))},
-			NewIntersections(NewIntersection(r, 1.0, s), NewIntersection(r, 3.0, s))},
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			if got := tt.i.Merge(tt.args.j); !got.Equals(tt.want) {
-				t.Errorf("Intersections.Merge() = %v, want %v", got, tt.want)
-			}
-		})
-	}
-}
-
 func TestIntersections_Hit(t *testing.T) {
 	var (
 		r = NewRay(NewPoint(0.0, 0.0, 0.0), NewVector(0.0, 0.0, 1.0))
@@ -218,6 +217,31 @@ func TestIntersections_Hit(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			if got := tt.i.Hit(); ((got == nil) != (tt.want == nil)) || (got != nil && !got.Equals(tt.want)) {
 				t.Errorf("Intersections.Hit() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
+func Test_MergeIntersections(t *testing.T) {
+	var (
+		r = NewRay(NewPoint(0.0, 0.0, 0.0), NewVector(0.0, 0.0, 1.0))
+		s = NewSphere()
+	)
+	type args struct {
+		i []Intersections
+	}
+	tests := []struct {
+		name string
+		args args
+		want Intersections
+	}{
+		{"case1", args{[]Intersections{NewIntersections(NewIntersection(r, 3.0, s)), NewIntersections(NewIntersection(r, 1.0, s))}},
+			NewIntersections(NewIntersection(r, 1.0, s), NewIntersection(r, 3.0, s))},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := MergeIntersections(tt.args.i); !got.Equals(tt.want) {
+				t.Errorf("MergeIntersections() = %v, want %v", got, tt.want)
 			}
 		})
 	}

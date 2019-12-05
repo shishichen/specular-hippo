@@ -93,6 +93,10 @@ func TestWorld_ColorAt(t *testing.T) {
 					WithMaterial(NewMaterial(NewColor(1.0, 1.0, 1.0), 1.0, 0.9, 0.9, 200.0))},
 			Lights{NewLight(NewPoint(-10.0, 10.0, -10.0), NewColor(1.0, 1.0, 1.0))}),
 			args{NewRay(NewPoint(0.0, 0.0, 0.75), NewVector(0.0, 0.0, -1.0))}, NewColor(1.0, 1.0, 1.0)},
+		{"case5", NewWorld(
+			Shapes{NewSphere(), NewSphere().WithTransform(NewTranslate(0.0, 0.0, 10.0))},
+			Lights{NewLight(NewPoint(0.0, 0.0, -10.0), NewColor(1.0, 1.0, 1.0))}),
+			args{NewRay(NewPoint(0.0, 0.0, 5.0), NewVector(0.0, 0.0, 1.0))}, NewColor(0.1, 0.1, 0.1)},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {

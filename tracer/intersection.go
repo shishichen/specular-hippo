@@ -4,13 +4,14 @@ import "sort"
 
 // Intersection represents an intersection.
 type Intersection struct {
-	r      *Ray
-	t      float64
-	s      Shape
-	p      *Point
-	normal *Vector
-	eye    *Vector
-	inside bool
+	r        *Ray
+	t        float64
+	s        Shape
+	p        *Point
+	normal   *Vector
+	eye      *Vector
+	inside   bool
+	shiftedP *Point
 }
 
 // Intersections represents an ordered collection of intersections.
@@ -18,7 +19,7 @@ type Intersections []*Intersection
 
 // NewIntersection constructs a new intersection.
 func NewIntersection(r *Ray, t float64, s Shape) *Intersection {
-	return &Intersection{r, t, s, nil, nil, nil, false}
+	return &Intersection{r, t, s, nil, nil, nil, false, nil}
 }
 
 // Ray returns the ray used to create this intersection.
@@ -60,6 +61,12 @@ func (i *Intersection) Inside() bool {
 	return i.inside
 }
 
+// ShiftedPoint returns the point in world space just over actual point.
+// Returns nil if ComputeMetadata has not yet been called.
+func (i *Intersection) ShiftedPoint() *Point {
+	return i.shiftedP
+}
+
 // Equals returns whether an intersection is approximately equal to this intersection.
 func (i *Intersection) Equals(j *Intersection) bool {
 	return i.Ray() == j.Ray() && equals(i.T(), j.T()) && i.Shape() == j.Shape()
@@ -74,6 +81,7 @@ func (i *Intersection) ComputeMetadata() {
 	if i.Inside() {
 		i.normal = i.Normal().TimesScalar(-1.0)
 	}
+	i.shiftedP = i.p.PlusVector(i.Normal().TimesScalar(epsilon))
 }
 
 func sortIntersections(i Intersections) {
@@ -100,13 +108,6 @@ func (i Intersections) Equals(j Intersections) bool {
 	return true
 }
 
-// Merge merges a collection of intersections with this collection of intersections.
-func (i Intersections) Merge(j Intersections) Intersections {
-	i = append(i, j...)
-	sortIntersections(i)
-	return i
-}
-
 // Hit returns the hit intersection from a collection of intersections.
 // May return nil.
 func (i Intersections) Hit() *Intersection {
@@ -116,4 +117,14 @@ func (i Intersections) Hit() *Intersection {
 		}
 	}
 	return nil
+}
+
+// MergeIntersections merges a collection of collections of intersections.
+func MergeIntersections(i []Intersections) Intersections {
+	r := NewIntersections()
+	for _, e := range i {
+		r = append(r, e...)
+	}
+	sortIntersections(r)
+	return r
 }

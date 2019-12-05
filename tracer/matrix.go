@@ -135,22 +135,22 @@ func (m *Matrix4) TimesMatrix(n *Matrix4) *Matrix4 {
 
 // TimesPoint returns a point representing this matrix multiplied by a point.
 func (m *Matrix4) TimesPoint(p *Point) *Point {
-	r := [4]float64{}
-	for i := 0; i < 4; i++ {
+	r := Point{}
+	for i := 0; i < 3; i++ {
 		r[i] = m[i][0]*p.X() + m[i][1]*p.Y() + m[i][2]*p.Z() + m[i][3]*p.W()
 	}
 	// hack: ignore whatever we might compute for W
-	return NewPoint(r[0], r[1], r[2])
+	return &r
 }
 
 // TimesVector returns a vector representing this matrix multiplied by a vector.
 func (m *Matrix4) TimesVector(v *Vector) *Vector {
-	r := [4]float64{}
-	for i := 0; i < 4; i++ {
+	r := Vector{}
+	for i := 0; i < 3; i++ {
 		r[i] = m[i][0]*v.X() + m[i][1]*v.Y() + m[i][2]*v.Z() + m[i][3]*v.W()
 	}
 	// hack: ignore whatever we might compute for W
-	return NewVector(r[0], r[1], r[2])
+	return &r
 }
 
 // TimesRay returns a ray representing this matrix multiplied by a ray.

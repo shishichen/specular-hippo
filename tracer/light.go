@@ -26,10 +26,21 @@ func (l *Light) Intensity() *Color {
 	return l.i
 }
 
-// Illuminate returns the color of a point given a material, normal, and eye vector.
-func (l *Light) Illuminate(m *Material, p *Point, normal *Vector, eye *Vector) *Color {
+// IsShadowed returns whether a point is in shadow of this light given a collection of shapes.
+func (l *Light) IsShadowed(p *Point, s Shapes) bool {
+	light := l.Position().MinusPoint(p)
+	r := NewRay(p, light.Normalize())
+	hit := s.Intersect(r).Hit()
+	return hit != nil && hit.T() < light.Magnitude()
+}
+
+// Illuminate returns the color of a point given a material, normal vector, eye vector, and whether it's in shadow.
+func (l *Light) Illuminate(m *Material, p *Point, normal *Vector, eye *Vector, s Shapes) *Color {
 	color := m.Color().TimesColor(l.Intensity())
 	ambient := color.TimesScalar(m.Ambient())
+	if l.IsShadowed(p, s) {
+		return ambient
+	}
 	light := l.Position().MinusPoint(p).Normalize()
 	lightDotNormal := light.DotVector(normal)
 	if lightDotNormal < 0.0 {
