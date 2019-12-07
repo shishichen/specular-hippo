@@ -18,7 +18,7 @@ func TestNewIntersection(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got := NewIntersection(tt.args.r, tt.args.t, tt.args.s)
+			got := NewIntersection(tt.args.s, tt.args.r, tt.args.t)
 			if !got.Ray().Equals(tt.args.r) {
 				t.Errorf("Intersection.Ray() = %v, want %v", got.Ray(), tt.args.r)
 			}
@@ -58,11 +58,11 @@ func TestIntersection_Equals(t *testing.T) {
 		args args
 		want bool
 	}{
-		{"case1", NewIntersection(r, 3.0, s), args{NewIntersection(r, 3.0, s)}, true},
-		{"case2", NewIntersection(NewRay(NewPoint(0.0, 0.0, 0.0), NewVector(0.0, 0.0, 1.0)), 3.0, s),
-			args{NewIntersection(NewRay(NewPoint(0.0, 0.0, 0.0), NewVector(0.0, 0.0, 1.0)), 3.0, s)}, false},
-		{"case3", NewIntersection(r, 3.0, s), args{NewIntersection(r, -5.0, s)}, false},
-		{"case4", NewIntersection(r, 3.0, NewSphere()), args{NewIntersection(r, 3.0, NewSphere())}, false},
+		{"case1", NewIntersection(s, r, 3.0), args{NewIntersection(s, r, 3.0)}, true},
+		{"case2", NewIntersection(s, NewRay(NewPoint(0.0, 0.0, 0.0), NewVector(0.0, 0.0, 1.0)), 3.0),
+			args{NewIntersection(s, NewRay(NewPoint(0.0, 0.0, 0.0), NewVector(0.0, 0.0, 1.0)), 3.0)}, false},
+		{"case3", NewIntersection(s, r, 3.0), args{NewIntersection(s, r, -5.0)}, false},
+		{"case4", NewIntersection(NewSphere(), r, 3.0), args{NewIntersection(NewSphere(), r, 3.0)}, false},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -85,9 +85,9 @@ func TestIntersection_ComputeMetadata(t *testing.T) {
 		i    *Intersection
 		want want
 	}{
-		{"case1", NewIntersection(NewRay(NewPoint(0.0, 0.0, -5.0), NewVector(0.0, 0.0, 1.0)), 4.0, NewSphere()),
+		{"case1", NewIntersection(NewSphere(), NewRay(NewPoint(0.0, 0.0, -5.0), NewVector(0.0, 0.0, 1.0)), 4.0),
 			want{NewPoint(0.0, 0.0, -1.0), NewVector(0.0, 0.0, -1.0), NewVector(0.0, 0.0, -1.0), false}},
-		{"case2", NewIntersection(NewRay(NewPoint(0.0, 0.0, 0.0), NewVector(0.0, 0.0, 1.0)), 1.0, NewSphere()),
+		{"case2", NewIntersection(NewSphere(), NewRay(NewPoint(0.0, 0.0, 0.0), NewVector(0.0, 0.0, 1.0)), 1.0),
 			want{NewPoint(0.0, 0.0, 1.0), NewVector(0.0, 0.0, -1.0), NewVector(0.0, 0.0, -1.0), true}},
 	}
 	for _, tt := range tests {
@@ -119,8 +119,8 @@ func TestIntersection_ShiftedPoint(t *testing.T) {
 		i    *Intersection
 		want want
 	}{
-		{"case1", NewIntersection(NewRay(NewPoint(0.0, 0.0, -5.0), NewVector(0.0, 0.0, 1.0)), 5.0,
-			NewSphere().WithTransform(NewTranslate(0.0, 0.0, 1.0))), want{true, epsilon / 2.0}},
+		{"case1", NewIntersection(NewSphere().WithTransform(NewTranslate(0.0, 0.0, 1.0)), NewRay(NewPoint(0.0, 0.0, -5.0),
+			NewVector(0.0, 0.0, 1.0)), 5.0), want{true, epsilon / 2.0}},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -147,7 +147,7 @@ func TestNewIntersections(t *testing.T) {
 		name string
 		args args
 	}{
-		{"case1", args{NewIntersection(r, 1.0, s), NewIntersection(r, 2.0, s)}},
+		{"case1", args{NewIntersection(s, r, 1.0), NewIntersection(s, r, 2.0)}},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -179,14 +179,14 @@ func TestIntersections_Equals(t *testing.T) {
 		args args
 		want bool
 	}{
-		{"case1", NewIntersections(NewIntersection(r, 1.0, s), NewIntersection(r, 3.0, s)),
-			args{NewIntersections(NewIntersection(r, 1.0, s), NewIntersection(r, 3.0, s))}, true},
-		{"case2", NewIntersections(NewIntersection(r, 1.0, s), NewIntersection(r, 3.0, s)),
-			args{NewIntersections(NewIntersection(r, 3.0, s), NewIntersection(r, 1.0, s))}, true},
-		{"case3", NewIntersections(NewIntersection(r, 1.0, s), NewIntersection(r, 3.0, s)),
-			args{NewIntersections(NewIntersection(r, 3.0, s))}, false},
-		{"case4", NewIntersections(NewIntersection(r, 1.0, s), NewIntersection(r, 3.0, s)),
-			args{NewIntersections(NewIntersection(r, 3.0, s), NewIntersection(r, -5.0, s))}, false},
+		{"case1", NewIntersections(NewIntersection(s, r, 1.0), NewIntersection(s, r, 3.0)),
+			args{NewIntersections(NewIntersection(s, r, 1.0), NewIntersection(s, r, 3.0))}, true},
+		{"case2", NewIntersections(NewIntersection(s, r, 1.0), NewIntersection(s, r, 3.0)),
+			args{NewIntersections(NewIntersection(s, r, 3.0), NewIntersection(s, r, 1.0))}, true},
+		{"case3", NewIntersections(NewIntersection(s, r, 1.0), NewIntersection(s, r, 3.0)),
+			args{NewIntersections(NewIntersection(s, r, 3.0))}, false},
+		{"case4", NewIntersections(NewIntersection(s, r, 1.0), NewIntersection(s, r, 3.0)),
+			args{NewIntersections(NewIntersection(s, r, 3.0), NewIntersection(s, r, -5.0))}, false},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -207,11 +207,11 @@ func TestIntersections_Hit(t *testing.T) {
 		i    Intersections
 		want *Intersection
 	}{
-		{"case1", NewIntersections(NewIntersection(r, 1.0, s), NewIntersection(r, 2.0, s)), NewIntersection(r, 1.0, s)},
-		{"case2", NewIntersections(NewIntersection(r, -1.0, s), NewIntersection(r, 1.0, s)), NewIntersection(r, 1.0, s)},
-		{"case3", NewIntersections(NewIntersection(r, -2.0, s), NewIntersection(r, -1.0, s)), nil},
-		{"case4", NewIntersections(NewIntersection(r, 5.0, s), NewIntersection(r, 7.0, s), NewIntersection(r, -3.0, s),
-			NewIntersection(r, 2.0, s)), NewIntersection(r, 2.0, s)},
+		{"case1", NewIntersections(NewIntersection(s, r, 1.0), NewIntersection(s, r, 2.0)), NewIntersection(s, r, 1.0)},
+		{"case2", NewIntersections(NewIntersection(s, r, -1.0), NewIntersection(s, r, 1.0)), NewIntersection(s, r, 1.0)},
+		{"case3", NewIntersections(NewIntersection(s, r, -2.0), NewIntersection(s, r, -1.0)), nil},
+		{"case4", NewIntersections(NewIntersection(s, r, 5.0), NewIntersection(s, r, 7.0), NewIntersection(s, r, -3.0),
+			NewIntersection(s, r, 2.0)), NewIntersection(s, r, 2.0)},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -235,8 +235,8 @@ func Test_MergeIntersections(t *testing.T) {
 		args args
 		want Intersections
 	}{
-		{"case1", args{[]Intersections{NewIntersections(NewIntersection(r, 3.0, s)), NewIntersections(NewIntersection(r, 1.0, s))}},
-			NewIntersections(NewIntersection(r, 1.0, s), NewIntersection(r, 3.0, s))},
+		{"case1", args{[]Intersections{NewIntersections(NewIntersection(s, r, 3.0)), NewIntersections(NewIntersection(s, r, 1.0))}},
+			NewIntersections(NewIntersection(s, r, 1.0), NewIntersection(s, r, 3.0))},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {

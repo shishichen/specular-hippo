@@ -57,8 +57,8 @@ func TestWorld_Intersect(t *testing.T) {
 		want Intersections
 	}{
 		{"case1", w, args{r}, NewIntersections(
-			NewIntersection(r, 4.0, w.Shapes()[0]), NewIntersection(r, 4.5, w.Shapes()[1]),
-			NewIntersection(r, 5.5, w.Shapes()[1]), NewIntersection(r, 6.0, w.Shapes()[0]))},
+			NewIntersection(w.Shapes()[0], r, 4.0), NewIntersection(w.Shapes()[1], r, 4.5),
+			NewIntersection(w.Shapes()[1], r, 5.5), NewIntersection(w.Shapes()[0], r, 6.0))},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {

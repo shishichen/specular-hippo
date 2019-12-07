@@ -4,53 +4,36 @@ import "math"
 
 // Sphere represents a sphere.
 type Sphere struct {
-	t        *Matrix4
-	inverseT *Matrix4
-	m        *Material
+	internalShape
 }
 
 // NewSphere constructs a new sphere.
 func NewSphere() *Sphere {
-	return &Sphere{NewIdentity(), NewIdentity(), NewDefaultMaterial()}
+	return &Sphere{defaultInternalShape()}
 }
 
-// Transform returns this sphere's transform.
-func (s *Sphere) Transform() *Matrix4 {
-	return s.t
-}
-
-func (s *Sphere) inverseTransform() *Matrix4 {
-	return s.inverseT
-}
-
-// Material returns this sphere's material.
-func (s *Sphere) Material() *Material {
-	return s.m
+// WithMaterial sets this sphere's material to a material.
+func (s *Sphere) WithMaterial(m *Material) *Sphere {
+	s.setMaterial(m)
+	return s
 }
 
 // WithTransform sets this sphere's transform to a matrix.
 // May return nil without setting the transform if the transform is invalid.
 func (s *Sphere) WithTransform(t *Matrix4) *Sphere {
-	if !t.HasInverse() {
+	if !s.setTransform(t) {
 		return nil
 	}
-	s.t = t
-	s.inverseT = t.Inverse()
-	return s
-}
-
-// WithMaterial sets this sphere's material to a material.
-func (s *Sphere) WithMaterial(m *Material) *Sphere {
-	s.m = m
 	return s
 }
 
 // Intersect returns this sphere's intersection points with a ray.
 func (s *Sphere) Intersect(r *Ray) Intersections {
-	rObject := s.inverseTransform().TimesRay(r)
-	sphereToRay := rObject.Origin().MinusPoint(NewPoint(0.0, 0.0, 0.0))
-	a := rObject.Direction().DotVector(rObject.Direction())
-	b := 2.0 * rObject.Direction().DotVector(sphereToRay)
+	or := r // save so we can return as part of the intersection
+	r = s.worldToObjectRay(r)
+	sphereToRay := r.Origin().MinusPoint(NewPoint(0.0, 0.0, 0.0))
+	a := r.Direction().DotVector(r.Direction())
+	b := 2.0 * r.Direction().DotVector(sphereToRay)
 	c := sphereToRay.DotVector(sphereToRay) - 1.0
 	discriminant := b*b - 4*a*c
 	if discriminant < 0 {
@@ -58,13 +41,12 @@ func (s *Sphere) Intersect(r *Ray) Intersections {
 	}
 	t1 := (-1.0*b - math.Sqrt(discriminant)) / (2.0 * a)
 	t2 := (-1.0*b + math.Sqrt(discriminant)) / (2.0 * a)
-	return NewIntersections(NewIntersection(r, t1, s), NewIntersection(r, t2, s))
+	return NewIntersections(NewIntersection(s, or, t1), NewIntersection(s, or, t2))
 }
 
 // NormalAt returns the normal at a point on this sphere.
 func (s *Sphere) NormalAt(p *Point) *Vector {
-	objectPoint := s.inverseTransform().TimesPoint(p)
-	objectNormal := objectPoint.MinusPoint(NewPoint(0.0, 0.0, 0.0))
-	worldNormal := s.inverseTransform().Transpose().TimesVector(objectNormal)
-	return worldNormal.Normalize()
+	p = s.worldToObjectPoint(p)
+	normal := p.MinusPoint(NewPoint(0.0, 0.0, 0.0))
+	return s.objectToWorldVector(normal)
 }

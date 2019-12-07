@@ -81,7 +81,50 @@ func drawSixSpheres() *tracer.Canvas {
 	return camera.WithThreads(2).Render(world)
 }
 
+func drawPlaneAndThreeSpheres() *tracer.Canvas {
+	world := tracer.NewWorld(
+		tracer.Shapes{
+			tracer.NewPlane().
+				WithMaterial(tracer.NewMaterial(tracer.NewColor(1, 0.9, 0.9), 0.2, 0.9, 0, 200)),
+			tracer.NewSphere().
+				WithTransform(tracer.NewTranslate(-0.5, 1, 0.5)).
+				WithMaterial(tracer.NewMaterial(tracer.NewColor(0.1, 1, 0.5), 0.2, 0.7, 0.3, 200)),
+			tracer.NewSphere().
+				WithTransform(tracer.NewScale(0.5, 0.5, 0.5).Translate(1.5, 0.5, -0.5)).
+				WithMaterial(tracer.NewMaterial(tracer.NewColor(0.5, 1, 0.1), 0.2, 0.7, 0.3, 200)),
+			tracer.NewSphere().
+				WithTransform(tracer.NewScale(0.33, 0.33, 0.33).Translate(-1.5, 0.33, -0.75)).
+				WithMaterial(tracer.NewMaterial(tracer.NewColor(1, 0.8, 0.1), 0.2, 0.7, 0.3, 200)),
+		},
+		tracer.Lights{
+			tracer.NewLight(tracer.NewPoint(-10, 10, -10), tracer.NewColor(1, 1, 1)),
+		})
+	camera := tracer.NewCamera(800, 800, math.Pi/3).
+		WithTransformFromParameters(tracer.NewPoint(0, 1.5, -5), tracer.NewPoint(0, 1, 0), tracer.NewVector(0, 1, 0))
+	return camera.WithThreads(2).Render(world)
+}
+
+func drawHexagonalRoom() *tracer.Canvas {
+	shapes := [7]tracer.Shape{}
+	for i := 0; i < 6; i++ {
+		angle := float64(i) * math.Pi / 3
+		shapes[i] = tracer.NewPlane().
+			WithTransform(tracer.NewRotateZ(math.Pi/2).RotateY(angle).Translate(-1.0*math.Cos(angle), 0, math.Sin(angle))).
+			WithMaterial(tracer.NewMaterial(tracer.NewColor(1, 0.9, 0.9), 0.2, 0.9, 0, 200))
+	}
+	shapes[6] = tracer.NewPlane().
+		WithMaterial(tracer.NewMaterial(tracer.NewColor(1, 0.9, 0.9), 0.2, 0.9, 0, 200))
+	world := tracer.NewWorld(
+		shapes[:],
+		tracer.Lights{
+			tracer.NewLight(tracer.NewPoint(0.5, 10, 0.5), tracer.NewColor(1, 1, 1)),
+		})
+	camera := tracer.NewCamera(800, 800, math.Pi/3).
+		WithTransformFromParameters(tracer.NewPoint(0, 5, 0), tracer.NewPoint(0, 0, 0), tracer.NewVector(0, 0, 1))
+	return camera.WithThreads(2).Render(world)
+}
+
 func main() {
-	c := drawSixSpheres()
+	c := drawHexagonalRoom()
 	c.ToFile()
 }

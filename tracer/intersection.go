@@ -4,9 +4,9 @@ import "sort"
 
 // Intersection represents an intersection.
 type Intersection struct {
+	s        Shape
 	r        *Ray
 	t        float64
-	s        Shape
 	p        *Point
 	normal   *Vector
 	eye      *Vector
@@ -18,8 +18,13 @@ type Intersection struct {
 type Intersections []*Intersection
 
 // NewIntersection constructs a new intersection.
-func NewIntersection(r *Ray, t float64, s Shape) *Intersection {
-	return &Intersection{r, t, s, nil, nil, nil, false, nil}
+func NewIntersection(s Shape, r *Ray, t float64) *Intersection {
+	return &Intersection{s, r, t, nil, nil, nil, false, nil}
+}
+
+// Shape returns the shape intersected with to create this intersection.
+func (i *Intersection) Shape() Shape {
+	return i.s
 }
 
 // Ray returns the ray used to create this intersection.
@@ -30,11 +35,6 @@ func (i *Intersection) Ray() *Ray {
 // T returns the intersection point on the ray used to create this intersection.
 func (i *Intersection) T() float64 {
 	return i.t
-}
-
-// Shape returns the shape intersected with to create this intersection.
-func (i *Intersection) Shape() Shape {
-	return i.s
 }
 
 // Point returns the point in world space where this intersection is.
