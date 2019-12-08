@@ -7,17 +7,16 @@ import (
 
 // Camera represents a camera in a scene.
 type Camera struct {
+	transformable
 	w           int
 	h           int
 	fieldOfView float64
-	t           *Matrix4
-	inverseT    *Matrix4
 	threads     int
 }
 
 // NewCamera constructs a new camera.
 func NewCamera(w, h int, fieldOfView float64) *Camera {
-	return &Camera{w, h, fieldOfView, NewIdentity(), NewIdentity(), 1}
+	return &Camera{defaultTransformable(), w, h, fieldOfView, 1}
 }
 
 // Width returns the horizontal size in pixels of this camera's canvas.
@@ -35,23 +34,12 @@ func (c *Camera) FieldOfView() float64 {
 	return c.fieldOfView
 }
 
-// Transform returns this camera's view transform.
-func (c *Camera) Transform() *Matrix4 {
-	return c.t
-}
-
-func (c *Camera) inverseTransform() *Matrix4 {
-	return c.inverseT
-}
-
 // WithTransform sets this camera's view transform.
 // May return nil if the transform is invalid.
 func (c *Camera) WithTransform(t *Matrix4) *Camera {
-	if !t.HasInverse() {
+	if !c.setTransform(t) {
 		return nil
 	}
-	c.t = t
-	c.inverseT = t.Inverse()
 	return c
 }
 
@@ -61,8 +49,8 @@ func (c *Camera) WithTransformFromParameters(from *Point, to *Point, up *Vector)
 	left := forward.CrossVector(up.Normalize())
 	up = left.CrossVector(forward)
 	orientation := NewMatrix4(left.X(), left.Y(), left.Z(), 0.0, up.X(), up.Y(), up.Z(), 0.0,
-		-1.0*forward.X(), -1.0*forward.Y(), -1.0*forward.Z(), 0.0, 0.0, 0.0, 0.0, 1.0)
-	transform := orientation.TimesMatrix(NewTranslate(-1.0*from.X(), -1.0*from.Y(), -1.0*from.Z()))
+		-forward.X(), -forward.Y(), -forward.Z(), 0.0, 0.0, 0.0, 0.0, 1.0)
+	transform := orientation.TimesMatrix(NewTranslate(-from.X(), -from.Y(), -from.Z()))
 	return c.WithTransform(transform)
 }
 
@@ -90,8 +78,8 @@ func (c *Camera) RayForPixel(x, y int) *Ray {
 	}
 	xWorld := width * (0.5 - (float64(x)+0.5)/float64(c.Width()))
 	yWorld := height * (0.5 - (float64(y)+0.5)/float64(c.Height()))
-	pixel := c.inverseTransform().TimesPoint(NewPoint(xWorld, yWorld, -1.0))
-	origin := c.inverseTransform().TimesPoint(NewPoint(0.0, 0.0, 0.0))
+	pixel := c.toLocalPoint(NewPoint(xWorld, yWorld, -1.0))
+	origin := c.toLocalPoint(NewPoint(0.0, 0.0, 0.0))
 	direction := pixel.MinusPoint(origin).Normalize()
 	return NewRay(origin, direction)
 }

@@ -6,7 +6,7 @@ import (
 
 func TestNewMaterial(t *testing.T) {
 	type args struct {
-		c         *Color
+		p         Pattern
 		ambient   float64
 		diffuse   float64
 		specular  float64
@@ -16,13 +16,13 @@ func TestNewMaterial(t *testing.T) {
 		name string
 		args args
 	}{
-		{"case1", args{NewColor(1.0, 3.0, 1.0), 0.1, 0.9, 0.5, 200.0}},
+		{"case1", args{NewSolidPattern(NewColor(1.0, 3.0, 1.0)), 0.1, 0.9, 0.5, 200.0}},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got := NewMaterial(tt.args.c, tt.args.ambient, tt.args.diffuse, tt.args.specular, tt.args.shininess)
-			if !got.Color().Equals(tt.args.c) {
-				t.Errorf("Material.Color() = %v, want %v", got.Color(), tt.args.c)
+			got := NewMaterial(tt.args.p, tt.args.ambient, tt.args.diffuse, tt.args.specular, tt.args.shininess)
+			if !got.Pattern().EqualsPattern(tt.args.p) {
+				t.Errorf("Material.Color() = %v, want %v", got.Pattern(), tt.args.p)
 			}
 			if !equals(got.Ambient(), tt.args.ambient) {
 				t.Errorf("Material.Ambient() = %v, want %v", got.Ambient(), tt.args.ambient)
@@ -50,9 +50,9 @@ func TestMaterial_Equals(t *testing.T) {
 		args args
 		want bool
 	}{
-		{"case1", NewMaterial(NewColor(1.0, 1.0, 1.0), 0.5, 0.7, 0.9, 100.0),
-			args{NewMaterial(NewColor(1.0, 1.0, 1.0), 0.5, 0.7, 0.9, 100.0)}, true},
-		{"case2", NewDefaultMaterial(), args{NewMaterial(NewColor(1.0, 1.0, 1.0), 0.1, 0.9, 0.9, 200.0)}, true},
+		{"case1", NewMaterial(NewSolidPattern(white), 0.5, 0.7, 0.9, 100.0),
+			args{NewMaterial(NewSolidPattern(white), 0.5, 0.7, 0.9, 100.0)}, true},
+		{"case2", NewDefaultMaterial(), args{NewMaterial(NewSolidPattern(white), 0.1, 0.9, 0.9, 200.0)}, true},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {

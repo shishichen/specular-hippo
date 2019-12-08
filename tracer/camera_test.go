@@ -29,30 +29,6 @@ func TestNewCamera(t *testing.T) {
 			if !equals(got.FieldOfView(), tt.args.fieldOfView) {
 				t.Errorf("Camera.FieldOfView = %v, want %v", got.FieldOfView(), tt.args.fieldOfView)
 			}
-			if !got.Transform().Equals(NewIdentity()) {
-				t.Errorf("Camera.Transform() = %v, want identity", got.Transform())
-			}
-		})
-	}
-}
-
-func TestCamera_WithTransform(t *testing.T) {
-	type args struct {
-		t *Matrix4
-	}
-	tests := []struct {
-		name string
-		c    *Camera
-		args args
-	}{
-		{"case1", NewCamera(100, 100, math.Pi/2.0), args{NewTranslate(5.0, 3.0, 2.0).Scale(4.0, 1.0, 2.0)}},
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			tt.c.WithTransform(tt.args.t)
-			if !tt.c.Transform().Equals(tt.args.t) {
-				t.Errorf("transform = %v, want %v", tt.c.Transform(), tt.args.t)
-			}
 		})
 	}
 }
@@ -165,22 +141,22 @@ func BenchmarkRender(b *testing.B) {
 			Shapes{
 				NewSphere().
 					WithTransform(NewScale(10, 0.01, 10)).
-					WithMaterial(NewMaterial(NewColor(1, 0.9, 0.9), 0.2, 0.9, 0, 200)),
+					WithMaterial(NewMaterial(NewSolidPattern(NewColor(1, 0.9, 0.9)), 0.2, 0.9, 0, 200)),
 				NewSphere().
 					WithTransform(NewScale(10, 0.01, 10).RotateX(math.Pi/2).RotateY(math.Pi/-4).Translate(0, 0, 5)).
-					WithMaterial(NewMaterial(NewColor(1, 0.9, 0.9), 0.2, 0.9, 0, 200)),
+					WithMaterial(NewMaterial(NewSolidPattern(NewColor(1, 0.9, 0.9)), 0.2, 0.9, 0, 200)),
 				NewSphere().
 					WithTransform(NewScale(10, 0.01, 10).RotateX(math.Pi/2).RotateY(math.Pi/4).Translate(0, 0, 5)).
-					WithMaterial(NewMaterial(NewColor(1, 0.9, 0.9), 0.2, 0.9, 0, 200)),
+					WithMaterial(NewMaterial(NewSolidPattern(NewColor(1, 0.9, 0.9)), 0.2, 0.9, 0, 200)),
 				NewSphere().
 					WithTransform(NewTranslate(-0.5, 1, 0.5)).
-					WithMaterial(NewMaterial(NewColor(0.1, 1, 0.5), 0.2, 0.7, 0.3, 200)),
+					WithMaterial(NewMaterial(NewSolidPattern(NewColor(0.1, 1, 0.5)), 0.2, 0.7, 0.3, 200)),
 				NewSphere().
 					WithTransform(NewScale(0.5, 0.5, 0.5).Translate(1.5, 0.5, -0.5)).
-					WithMaterial(NewMaterial(NewColor(0.5, 1, 0.1), 0.2, 0.7, 0.3, 200)),
+					WithMaterial(NewMaterial(NewSolidPattern(NewColor(0.5, 1, 0.1)), 0.2, 0.7, 0.3, 200)),
 				NewSphere().
 					WithTransform(NewScale(0.33, 0.33, 0.33).Translate(-1.5, 0.33, -0.75)).
-					WithMaterial(NewMaterial(NewColor(1, 0.8, 0.1), 0.2, 0.7, 0.3, 200)),
+					WithMaterial(NewMaterial(NewSolidPattern(NewColor(1, 0.8, 0.1)), 0.2, 0.7, 0.3, 200)),
 			},
 			Lights{
 				NewLight(NewPoint(-10, 10, -10), NewColor(1, 1, 1)),

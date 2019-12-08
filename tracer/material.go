@@ -2,7 +2,7 @@ package tracer
 
 // Material represents a material.
 type Material struct {
-	c         *Color
+	p         Pattern
 	ambient   float64
 	diffuse   float64
 	specular  float64
@@ -10,21 +10,21 @@ type Material struct {
 }
 
 // NewMaterial constructs a new material.
-func NewMaterial(c *Color, ambient float64, diffuse float64, specular float64, shininess float64) *Material {
+func NewMaterial(p Pattern, ambient float64, diffuse float64, specular float64, shininess float64) *Material {
 	if ambient < 0 || diffuse < 0 || specular < 0 || shininess < 0 {
 		return nil
 	}
-	return &Material{c, ambient, diffuse, specular, shininess}
+	return &Material{p, ambient, diffuse, specular, shininess}
 }
 
 // NewDefaultMaterial constructs a new default material.
 func NewDefaultMaterial() *Material {
-	return NewMaterial(NewColor(1.0, 1.0, 1.0), 0.1, 0.9, 0.9, 200.0)
+	return NewMaterial(NewSolidPattern(white), 0.1, 0.9, 0.9, 200.0)
 }
 
-// Color returns this material's color.
-func (m *Material) Color() *Color {
-	return m.c
+// Pattern this material's pattern.
+func (m *Material) Pattern() Pattern {
+	return m.p
 }
 
 // Ambient returns this material's ambient.
@@ -49,7 +49,12 @@ func (m *Material) Shininess() float64 {
 
 // Equals returns whether a material is approximately equal to this material.
 func (m *Material) Equals(n *Material) bool {
-	return m.Color().Equals(n.Color()) &&
+	return m.Pattern().EqualsPattern(n.Pattern()) &&
 		equals(m.Ambient(), n.Ambient()) && equals(m.Diffuse(), n.Diffuse()) &&
 		equals(m.Specular(), n.Specular()) && equals(m.Shininess(), n.Shininess())
+}
+
+// ColorAt returns this material's color at a point.
+func (m *Material) ColorAt(p *Point) *Color {
+	return m.p.ColorAt(p)
 }

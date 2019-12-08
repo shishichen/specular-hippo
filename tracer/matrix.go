@@ -82,7 +82,7 @@ func (m *Matrix3) cofactor(x, y int) float64 {
 	if equals(math.Mod(float64(x+y), 2), 0.0) {
 		return r
 	}
-	return -1.0 * r
+	return -r
 }
 
 func (m *Matrix3) determinant() float64 {
@@ -190,7 +190,7 @@ func (m *Matrix4) cofactor(x, y int) float64 {
 	if equals(math.Mod(float64(x+y), 2), 0.0) {
 		return r
 	}
-	return -1.0 * r
+	return -r
 }
 
 func (m *Matrix4) determinant() float64 {
@@ -254,7 +254,7 @@ func (m *Matrix4) Scale(x, y, z float64) *Matrix4 {
 func NewRotateX(x float64) *Matrix4 {
 	r := NewIdentity()
 	r[1][1] = math.Cos(x)
-	r[1][2] = -1.0 * math.Sin(x)
+	r[1][2] = -math.Sin(x)
 	r[2][1] = math.Sin(x)
 	r[2][2] = math.Cos(x)
 	return r
@@ -270,7 +270,7 @@ func NewRotateY(x float64) *Matrix4 {
 	r := NewIdentity()
 	r[0][0] = math.Cos(x)
 	r[0][2] = math.Sin(x)
-	r[2][0] = -1.0 * math.Sin(x)
+	r[2][0] = -math.Sin(x)
 	r[2][2] = math.Cos(x)
 	return r
 }
@@ -284,7 +284,7 @@ func (m *Matrix4) RotateY(x float64) *Matrix4 {
 func NewRotateZ(x float64) *Matrix4 {
 	r := NewIdentity()
 	r[0][0] = math.Cos(x)
-	r[0][1] = -1.0 * math.Sin(x)
+	r[0][1] = -math.Sin(x)
 	r[1][0] = math.Sin(x)
 	r[1][1] = math.Cos(x)
 	return r

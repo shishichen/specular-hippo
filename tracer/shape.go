@@ -2,9 +2,14 @@ package tracer
 
 // Shape is an interface for shapes.
 type Shape interface {
+	// Material returns this shape's material.
 	Material() *Material
-	Intersect(r *Ray) Intersections
-	NormalAt(p *Point) *Vector
+	// Intersect returns this shape's intersection points with a ray.
+	Intersect(*Ray) Intersections
+	// ColorAt returns the color at a point on this shape.
+	ColorAt(*Point) *Color
+	// NormalAt returns the normal at a point on this shape.
+	NormalAt(*Point) *Vector
 }
 
 // Shapes represents a collection of shapes.
@@ -21,49 +26,25 @@ func (s Shapes) Intersect(r *Ray) Intersections {
 
 // internalShape represents the some of the internals of shapes.
 type internalShape struct {
-	m        *Material
-	t        *Matrix4
-	inverseT *Matrix4
+	transformable
+	m *Material
 }
 
 func defaultInternalShape() internalShape {
-	return internalShape{NewDefaultMaterial(), NewIdentity(), NewIdentity()}
+	return internalShape{defaultTransformable(), NewDefaultMaterial()}
 }
 
-// Material returns this shape's material.
+// Material implements the Shape interface.
 func (s *internalShape) Material() *Material {
 	return s.m
 }
 
-// Transform returns this shape's transform.
-func (s *internalShape) Transform() *Matrix4 {
-	return s.t
+// ColorAt implements the Shape interface.
+func (s *internalShape) ColorAt(p *Point) *Color {
+	p = s.toLocalPoint(p)
+	return s.Material().ColorAt(p)
 }
 
-func (s *internalShape) inverseTransform() *Matrix4 {
-	return s.inverseT
-}
 func (s *internalShape) setMaterial(m *Material) {
 	s.m = m
-}
-
-func (s *internalShape) setTransform(t *Matrix4) bool {
-	if !t.HasInverse() {
-		return false
-	}
-	s.t = t
-	s.inverseT = t.Inverse()
-	return true
-}
-
-func (s *internalShape) worldToObjectPoint(p *Point) *Point {
-	return s.inverseTransform().TimesPoint(p)
-}
-
-func (s *internalShape) worldToObjectRay(r *Ray) *Ray {
-	return s.inverseTransform().TimesRay(r)
-}
-
-func (s *internalShape) objectToWorldVector(v *Vector) *Vector {
-	return s.inverseTransform().Transpose().TimesVector(v).Normalize()
 }

@@ -26,19 +26,11 @@ func (l *Light) Intensity() *Color {
 	return l.i
 }
 
-// IsShadowed returns whether a point is in shadow of this light given a collection of shapes.
-func (l *Light) IsShadowed(p *Point, s Shapes) bool {
-	light := l.Position().MinusPoint(p)
-	r := NewRay(p, light.Normalize())
-	hit := s.Intersect(r).Hit()
-	return hit != nil && hit.T() < light.Magnitude()
-}
-
-// Illuminate returns the color of a point given a material, normal vector, eye vector, and whether it's in shadow.
-func (l *Light) Illuminate(m *Material, p *Point, normal *Vector, eye *Vector, s Shapes) *Color {
-	color := m.Color().TimesColor(l.Intensity())
-	ambient := color.TimesScalar(m.Ambient())
-	if l.IsShadowed(p, s) {
+// Illuminate returns the color of a point given the shape the point is on, normal vector, eye vector, and whether it's in shadow.
+func (l *Light) Illuminate(s Shape, p *Point, normal *Vector, eye *Vector, isShadowed bool) *Color {
+	color := s.ColorAt(p).TimesColor(l.Intensity())
+	ambient := color.TimesScalar(s.Material().Ambient())
+	if isShadowed {
 		return ambient
 	}
 	light := l.Position().MinusPoint(p).Normalize()
@@ -46,12 +38,12 @@ func (l *Light) Illuminate(m *Material, p *Point, normal *Vector, eye *Vector, s
 	if lightDotNormal < 0.0 {
 		return ambient
 	}
-	diffuse := color.TimesScalar(m.Diffuse()).TimesScalar(lightDotNormal)
+	diffuse := color.TimesScalar(s.Material().Diffuse()).TimesScalar(lightDotNormal)
 	reflect := normal.Reflect(light.TimesScalar(-1.0))
 	reflectDotEye := reflect.DotVector(eye)
 	if reflectDotEye < 0.0 {
 		return ambient.PlusColor(diffuse)
 	}
-	specular := l.Intensity().TimesScalar(m.Specular()).TimesScalar(math.Pow(reflectDotEye, m.Shininess()))
+	specular := l.Intensity().TimesScalar(s.Material().Specular()).TimesScalar(math.Pow(reflectDotEye, s.Material().Shininess()))
 	return ambient.PlusColor(diffuse).PlusColor(specular)
 }
